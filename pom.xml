@@ -1,25 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016. Mao Jianwei
+  ~
+  ~ MaoCloud deployed in Beijing University of Posts and Telecommunications(BUPT), China.
+  ~
+  ~ All Rights Reserved.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.mao</groupId>
-  <artifactId>mao.cloud</artifactId>
-  <version>0.6-SNAPSHOT</version>
-  <packaging>jar</packaging>
+    <groupId>org.mao</groupId>
+    <artifactId>mao.cloud</artifactId>
+    <version>0.6-SNAPSHOT</version>
 
-  <name>mao.cloud</name>
-  <url>http://maven.apache.org</url>
+    <!-- packaging "bundle" for felix.scr -->
+    <packaging>bundle</packaging>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+    <name>mao.cloud</name>
+    <url>http://maojianwei.github.io/</url>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+
+            <!-- both for felix.scr -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.0.1</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <version>1.21.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-srcdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+            <!-- generate Manifest -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+
+                            <!--<mainClass>org.mao.cloud</mainClass>-->
+
+                            <!-- add dependency classpath: ./dependency-jars/ should be same to maven-dependency-plugin below-->
+                            <!--<addClasspath>true</addClasspath>-->
+                            <!--<classpathPrefix>dependency-jars/</classpathPrefix>-->
+
+                            <!-- add detail info to manifest -->
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
+
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+
+            <!-- maven-shade-plugin will unzip the dependency jar, copy the .class files to our app jar -->
+            <!-- so all dependencies is OK -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <!--<configuration>-->
+                        <!--<transformers>-->
+                        <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+                        <!--<mainClass>org.maojianwei.chinese.poetry.app.MaoChinesePoetry</mainClass>-->
+                        <!--</transformer>-->
+                        <!--</transformers>-->
+                        <!--</configuration>-->
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- copy dependency to ${project.build.directory}/dependency-jars/-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency-jars/
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
