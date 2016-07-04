@@ -1,4 +1,4 @@
-package org.mao.cloud.MaoCloud.Foundation.base;
+package org.mao.cloud.MaoCloud.Network.base;
 
 import io.netty.channel.socket.SocketChannel;
 

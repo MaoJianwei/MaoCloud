@@ -1,4 +1,4 @@
-package org.mao.cloud.MaoCloud.Foundation.intf;
+package org.mao.cloud.MaoCloud.Network.intf;
 
 import java.util.concurrent.Callable;
 

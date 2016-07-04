@@ -1,4 +1,4 @@
-package org.mao.cloud.MaoCloud.Foundation.base;
+package org.mao.cloud.MaoCloud.Network.base;
 
 /**
  * Created by mao on 2016/7/3.

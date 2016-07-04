@@ -1,6 +1,6 @@
-package org.mao.cloud.MaoCloud.Foundation.intf;
+package org.mao.cloud.MaoCloud.Network.intf;
 
-import org.mao.cloud.MaoCloud.Foundation.base.SubscriberRole;
+import org.mao.cloud.MaoCloud.Network.base.SubscriberRole;
 
 /**
  * Created by mao on 2016/7/3.
@@ -12,7 +12,6 @@ public interface NetworkService {
     boolean unsubscribe(SubscriberRole role, NetworkSubscriber subscriber);
 
 
-    //getNodeInfo(nodename);
     boolean sendMessage(String nodeName, Object data);
 
 }
