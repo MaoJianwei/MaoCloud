@@ -8,6 +8,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 /**
  * Created by mao on 2016/7/2.
  */
+@Deprecated
 public class MaoProtocolInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override

@@ -4,7 +4,10 @@ import org.mao.cloud.MaoCloud.Network.netty.api.MaoCloudProtocol;
 
 /**
  * Created by mao on 2016/7/1.
+ *
+ * Beta v0.1
  */
+@Deprecated
 public class MaoProtocol {
 
     private String protocolPrefix;

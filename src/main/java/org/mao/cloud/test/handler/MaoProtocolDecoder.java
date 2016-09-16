@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * Created by mao on 2016/7/1.
  */
+@Deprecated
 public class MaoProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     @Override

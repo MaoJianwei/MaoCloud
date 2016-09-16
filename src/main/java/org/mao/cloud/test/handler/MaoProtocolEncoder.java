@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by mao on 2016/7/1.
  */
+@Deprecated
 public class MaoProtocolEncoder extends MessageToByteEncoder<MaoCloudProtocol> {
 
     @Override
