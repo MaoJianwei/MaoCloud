@@ -127,7 +127,7 @@ public class NetworkManager implements NetworkService {
                 p.addLast(
                         //Attention - assume that if we use LengthFieldBasedFrameDecoder, the frame is certainly unbroken.
                         //2016.09.17
-                        new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4, 4, 0),
+                        new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4, 0, 0),
                         new MaoProtocolDecoder(),
                         new MaoProtocolInboundHandler(),
                         new MaoProtocolEncoder(),

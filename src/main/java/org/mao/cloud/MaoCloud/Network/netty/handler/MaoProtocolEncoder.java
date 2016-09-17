@@ -4,16 +4,17 @@ import org.mao.cloud.MaoCloud.Network.netty.api.MaoCloudProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 
 import java.io.UnsupportedEncodingException;
 
 /**
  * Created by mao on 2016/7/1.
  */
-public class MaoProtocolEncoder extends MessageToByteEncoder<MaoCloudProtocol> {
+public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MaoCloudProtocol maoP, ByteBuf out) throws UnsupportedEncodingException {
+    protected void encode(ChannelHandlerContext ctx, MPMessage maoP, ByteBuf out) throws UnsupportedEncodingException {
 
         if(!maoP.checkValid())
             return;
@@ -24,7 +25,7 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MaoCloudProtocol> {
         out.writeBytes(maoP.getDataOrCmd().getBytes("UTF-8"));
     }
 
-    private byte buildField(MaoCloudProtocol maoP){
+    private byte buildField(MPMessage maoP){
         byte field = 0;
         field |= maoP.getSYN() ? 0x80 : 0x00;
         field |= maoP.getFIN() ? 0x40 : 0x00;

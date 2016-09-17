@@ -9,6 +9,7 @@ import io.netty.channel.ChannelPromise;
 /**
  * Created by mao on 2016/7/2.
  */
+@Deprecated
 public class MaoProtocolOutboundHandler extends ChannelOutboundHandlerAdapter {
 
     @Override

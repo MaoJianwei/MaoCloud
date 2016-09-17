@@ -7,6 +7,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.MPFactories;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -19,25 +20,22 @@ public class MaoProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws UnsupportedEncodingException {
 
-        if(msg.readableBytes() < 12)
+        if(msg.readableBytes() < 16) {
+            //FIXME - USING LengthFieldBasedFrameDecoder, SHOULD NOT COME HERE !
             return;
+        }
 
         MPMessageReader<MPMessage> generalReader = MPFactories.getGeneralReader();
-        MPMessage mpMessage = generalReader.readFrom(msg);
-        out.add(mpMessage);
-
-
-//
-//        MaoCloudProtocol.Builder maoPB = MaoCloudProtocol.builder();
-//        if(!parseField(maoPB, msg))
-//            return;
-//
-//        MaoCloudProtocol maoP = maoPB.build();
-//        if(maoP.checkValid()) {
-//            out.add(maoP);
-//        }
+        try {
+            MPMessage mpMessage = generalReader.readFrom(msg);
+            out.add(mpMessage);
+        }catch(MPParseError e){
+            //TODO - LOG warning...
+            e.getMessage();
+        }
     }
 
+    /*
     @Deprecated
     private boolean parseField(MaoCloudProtocol.Builder maoPB, ByteBuf msg) {
 
@@ -70,4 +68,5 @@ public class MaoProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
         msg.readBytes(dataOrCmd);
         maoPB.setDataOrCmd(new String(dataOrCmd, "UTF-8"));
     }
+    */
 }
