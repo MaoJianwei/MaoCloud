@@ -125,7 +125,9 @@ public class NetworkManager implements NetworkService {
 
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(
-                        new LengthFieldBasedFrameDecoder(65535, 10, 2, 0, 0),
+                        //Attention - assume that if we use LengthFieldBasedFrameDecoder, the frame is certainly unbroken.
+                        //2016.09.17
+                        new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4, 4, 0),
                         new MaoProtocolDecoder(),
                         new MaoProtocolInboundHandler(),
                         new MaoProtocolEncoder(),

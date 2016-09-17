@@ -4,6 +4,9 @@ import org.mao.cloud.MaoCloud.Network.netty.api.MaoCloudProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.MPFactories;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -19,17 +22,23 @@ public class MaoProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
         if(msg.readableBytes() < 12)
             return;
 
-        MaoCloudProtocol.Builder maoPB = MaoCloudProtocol.builder();
-        if(!parseField(maoPB, msg))
-            return;
+        MPMessageReader<MPMessage> generalReader = MPFactories.getGeneralReader();
+        MPMessage mpMessage = generalReader.readFrom(msg);
+        out.add(mpMessage);
 
-        MaoCloudProtocol maoP = maoPB.build();
-        if(maoP.checkValid()) {
-            out.add(maoP);
-        }
+
+//
+//        MaoCloudProtocol.Builder maoPB = MaoCloudProtocol.builder();
+//        if(!parseField(maoPB, msg))
+//            return;
+//
+//        MaoCloudProtocol maoP = maoPB.build();
+//        if(maoP.checkValid()) {
+//            out.add(maoP);
+//        }
     }
 
-
+    @Deprecated
     private boolean parseField(MaoCloudProtocol.Builder maoPB, ByteBuf msg) {
 
         try {
