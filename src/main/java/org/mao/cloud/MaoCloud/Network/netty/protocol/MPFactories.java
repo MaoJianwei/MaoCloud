@@ -20,6 +20,8 @@ public final class MPFactories {
         return GENERAL_READER;
     }
 
+
+
     private static class GeneralReader implements MPMessageReader<MPMessage> {
 
         private static final String PROTOCOL_PREFIX = "MAOCLOUD";

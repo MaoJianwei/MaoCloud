@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength;
 
 /**
@@ -13,6 +14,7 @@ public class MPHelloVer03 implements MPHello {
 
     public static final Reader READER = new Reader();
 
+    public MPMessageType getType(){return MPMessageType.HELLO;}
 
 
     private byte [] idHashValue;
@@ -34,6 +36,27 @@ public class MPHelloVer03 implements MPHello {
 
             byte [] idHashValue = new byte [SHA256_LENGTH];
             msg.readBytes(idHashValue);
+            return new MPHelloVer03(idHashValue);
+        }
+    }
+
+    public class Builder implements MPHello.Builder {
+
+        private byte [] idHashValue;
+
+        private Builder(){
+            idHashValue = null;
+        }
+
+        public Builder setHashValue(byte [] hashValue){
+            idHashValue = hashValue;
+            return this;
+        }
+
+        public MPHelloVer03 build() {
+            if(idHashValue==null){
+                throw new NullPointerException("Null Pointer: idHashValue");
+            }
             return new MPHelloVer03(idHashValue);
         }
     }

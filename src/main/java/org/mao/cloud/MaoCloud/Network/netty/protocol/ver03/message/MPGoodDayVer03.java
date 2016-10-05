@@ -3,6 +3,7 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 import io.netty.buffer.ByteBuf;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPGoodDay;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 
 /**
  * Created by mao on 2016/9/17.
@@ -10,6 +11,8 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPGoodDay;
 public class MPGoodDayVer03 implements MPGoodDay {
 
     public static final Reader READER = new Reader();
+
+    public MPMessageType getType(){return MPMessageType.GOODDAY;}
 
 
     private String cause;

@@ -1,4 +1,4 @@
-package org.mao.cloud.MaoCloud.Network.intf;
+package org.mao.cloud.MaoCloud.Network.api;
 
 import org.mao.cloud.MaoCloud.Network.base.SubscriberRole;
 

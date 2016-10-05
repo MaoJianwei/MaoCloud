@@ -3,7 +3,7 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.api.message;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 
 /**
- * Created by mao on 2016/9/17.
+ * Created by mao on 2016/9/18.
  */
-public interface MPEcho extends MPMessage {
+public interface MPEchoReply extends MPMessage{
 }
