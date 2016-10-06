@@ -7,8 +7,17 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
  */
 public interface MPEchoRequest extends MPMessage {
 
-    interface Builder extends MPMessage.Builder{
-        MPEchoRequest build();
+    //    Reader reader();
+    interface Reader extends MPMessage.Reader<MPEchoRequest>{
     }
 
+    Writer writer();
+    interface Writer extends MPMessage.Writer{
+    }
+
+
+    Builder builder();
+    interface Builder extends MPMessage.Builder {
+        MPEchoRequest build();
+    }
 }

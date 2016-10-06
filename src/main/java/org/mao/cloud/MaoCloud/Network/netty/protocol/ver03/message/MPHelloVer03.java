@@ -28,7 +28,7 @@ public class MPHelloVer03 implements MPHello {
     }
 
 
-    //TODO - should be updated
+    //TODO - should be updated - considered CheckSum
     private static final Reader READER = new Reader();
     public static Reader reader(){
         return READER;
