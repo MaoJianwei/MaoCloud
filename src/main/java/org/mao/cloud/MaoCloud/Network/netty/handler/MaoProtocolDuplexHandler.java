@@ -1,5 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.netty.handler;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,12 +21,17 @@ import static org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDuplexHand
  */
 public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
-    private MaoProtocolNode maoProtocolNode;
-    private MaoProtocolNetworkControllerImpl controller;
-    private MaoProtocolState state;
+    private final boolean isRoleClient;
 
-    public MaoProtocolDuplexHandler(MaoProtocolNetworkControllerImpl controller){
+    private MaoProtocolNetworkControllerImpl controller;
+
+    private MaoProtocolNode maoProtocolNode;
+    private MaoProtocolState state;
+    private Channel channel;
+
+    public MaoProtocolDuplexHandler(MaoProtocolNetworkControllerImpl controller, boolean isRoleClient){
         this.controller = controller;
+        this.isRoleClient = isRoleClient;
         state = MaoProtocolState.INIT;
     }
 
@@ -48,19 +54,21 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
             @Override
             void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
 
-                if(mpHello.getVersion().get() >= MPVersion.MP_03.get()){
-                    MPFactory factory = MPFactories.getFactory(MPVersion.MP_03);
-                    MPHello hello = factory.buildHello()
-                            .setNodeName("MaoTestA")
-                            .setNodePassword("123456789")
-                            .build();
-                    ctx.writeAndFlush(hello);
-                }
-
-
                 //TODO - below is hello world Test
+
                 ChannelHandler channelHandler = ctx.handler();
                 MaoProtocolDuplexHandler h = (MaoProtocolDuplexHandler) channelHandler;
+
+                if(!h.isRoleClient) {
+                    if (mpHello.getVersion().get() >= MPVersion.MP_03.get()) {
+                        MPFactory factory = MPFactories.getFactory(MPVersion.MP_03);
+                        MPHello hello = factory.buildHello()
+                                .setNodeName("MaoTestA")
+                                .setNodePassword("123456789")
+                                .build();
+                        ctx.writeAndFlush(hello);
+                    }
+                }
 
                 h.maoProtocolNode = h.controller.getMaoProtocolNode(ctx.channel().remoteAddress().toString());
                 h.maoProtocolNode.announceConnected();
@@ -103,7 +111,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
             //get version
             MPVersion version;
-            MPFactories.
+//            MPFactories.
 
         };
         void processEchoReplyMessage(){
@@ -119,6 +127,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        channel = ctx.channel();
         setState(WAIT_HELLO);
     }
     @Override

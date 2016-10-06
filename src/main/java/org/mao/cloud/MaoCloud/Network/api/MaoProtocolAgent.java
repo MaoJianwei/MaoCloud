@@ -7,4 +7,5 @@ import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
  */
 public interface MaoProtocolAgent {
     boolean addConnectedNode(MaoProtocolNode node);
+    String getOneUnConnectedNode();
 }

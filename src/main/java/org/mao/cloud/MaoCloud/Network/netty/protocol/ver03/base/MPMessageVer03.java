@@ -42,11 +42,11 @@ public abstract class MPMessageVer03 {
                         case 0:
                             return MPHelloVer03.reader().readFrom(msg);
                         case 1:
-                            return MPGoodDayVer03.READER.readFrom(msg);
+                            return MPGoodDayVer03.reader().readFrom(msg);
                         case 2:
-                            return MPEchoRequestVer03.READER.readFrom(msg);
+                            return MPEchoRequestVer03.reader().readFrom(msg);
                         case 3:
-                            return MPEchoReplyVer03.READER.readFrom(msg);
+                            return MPEchoReplyVer03.reader().readFrom(msg);
                         default:
                             throw new MPErrorType(2, type>>>4, type&0x0f, false);
                     }
