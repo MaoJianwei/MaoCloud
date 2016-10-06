@@ -8,6 +8,7 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 public interface MPMessage {
     MPMessageType getType();
 
+    MPMessageWriter getWriter();
 
     interface Builder{
         MPMessage build();

@@ -61,8 +61,6 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         END;
 
 
-
-
         private void processMPMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
             switch(mpMessage.getType()){
                 case HELLO:

@@ -1,6 +1,7 @@
 package org.mao.cloud.MaoCloud.Network.impl;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -44,7 +45,9 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, TCP_BACKLOG_VALUE)
-                .childHandler(new NetworkChannelInitializer(this));
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
+                .childHandler(new NetworkChannelInitializer(this))
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT); // TODO - CHECK
 
         try {
             serverChannel = serverBootstrap.bind(SERVER_PORT).sync().channel();
