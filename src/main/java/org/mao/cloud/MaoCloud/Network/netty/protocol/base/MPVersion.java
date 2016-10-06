@@ -1,13 +1,14 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.base;
 
 /**
- * Created by mao on 2016/9/18.
+ * Created by mao on 2016/9/17.
  */
 public enum MPVersion {
 
-    MP_03(0);
+    MP_03(3);
 
-    private int wireVersion;
+    private final int wireVersion;
+
     MPVersion(int wireVersion){this.wireVersion = wireVersion;}
-    public int getWireVersion(){return wireVersion;}
+    public int get(){return wireVersion;}
 }

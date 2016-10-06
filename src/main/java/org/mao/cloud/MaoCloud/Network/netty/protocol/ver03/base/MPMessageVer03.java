@@ -16,9 +16,9 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPHelloVer03;
 public abstract class MPMessageVer03 {
 
     public static final Reader READER = new Reader();
-
     private static class Reader implements MPMessageReader<MPMessage> {
 
+        @Override
         public MPMessage readFrom(ByteBuf msg) throws MPParseError {
             byte type = msg.readByte();
             byte params = msg.readByte();
@@ -27,6 +27,7 @@ public abstract class MPMessageVer03 {
             boolean checksumExist = (params & 0x80) > 0;
             boolean securePolicy = (params & 0x40) > 0;
 
+            //strip CheckSum
             if(checksumExist){
                 verifyChecksum(msg);
             }
@@ -39,7 +40,7 @@ public abstract class MPMessageVer03 {
                 case 0:
                     switch(type & 0x0f){
                         case 0:
-                            return MPHelloVer03.READER.readFrom(msg);
+                            return MPHelloVer03.reader().readFrom(msg);
                         case 1:
                             return MPGoodDayVer03.READER.readFrom(msg);
                         case 2:

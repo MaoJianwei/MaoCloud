@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by mao on 2016/10/6.
  */
-public interface MPMessageWriter<T> {
+public interface MPMessageWriter {
     void writeVersion(ByteBuf out);
     void writeType(ByteBuf out);
 

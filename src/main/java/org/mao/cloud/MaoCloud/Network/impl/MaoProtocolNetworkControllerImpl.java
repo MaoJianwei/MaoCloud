@@ -23,6 +23,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
     private static int TCP_BACKLOG_VALUE = 20;
     private static int SERVER_PORT = 6666; // TODO - modify
 
+
     private MaoProtocolAgent agent;
 
 

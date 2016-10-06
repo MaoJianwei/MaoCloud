@@ -8,6 +8,8 @@ import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolController;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 @Component(immediate = true)
 @Service
 public class MaoProtocolControllerImpl implements MaoProtocolController {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private MaoProtocolAgent agent = new MaoProtocolNodeAgent();
     private MaoProtocolNetworkController networkController = new MaoProtocolNetworkControllerImpl(agent);
@@ -40,6 +44,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
         @Override
         public boolean addConnectedNode(MaoProtocolNode node){
             connectedNodes.put(node.getAddress(), node);
+            log.info("New Node is up: {}", node.getAddress());
             return true;
         }
     }

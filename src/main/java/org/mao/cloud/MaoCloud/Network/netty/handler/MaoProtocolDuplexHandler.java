@@ -6,7 +6,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
 import org.mao.cloud.MaoCloud.Network.impl.MaoProtocolNetworkControllerImpl;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.MPFactories;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPFactory;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 
 import static org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDuplexHandler.MaoProtocolState.END;
@@ -44,7 +46,18 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
         WAIT_HELLO{
             @Override
-            void processHelloMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
+            void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
+
+                if(mpHello.getVersion().get() >= MPVersion.MP_03.get()){
+                    MPFactory factory = MPFactories.getFactory(MPVersion.MP_03);
+                    MPHello hello = factory.buildHello()
+                            .setNodeName("MaoTestA")
+                            .setNodePassword("123456789")
+                            .build();
+                    ctx.writeAndFlush(hello);
+                }
+
+
                 //TODO - below is hello world Test
                 ChannelHandler channelHandler = ctx.handler();
                 MaoProtocolDuplexHandler h = (MaoProtocolDuplexHandler) channelHandler;
@@ -55,6 +68,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
             };
         },
         ACTIVE{
+
         },
         GOODDAY,
         ENDING,
@@ -64,7 +78,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         private void processMPMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
             switch(mpMessage.getType()){
                 case HELLO:
-                    processHelloMessage(ctx, mpMessage);
+                    processHelloMessage(ctx, (MPHello) mpMessage);
                     break;
                 case ECHO_REQUEST:
                     processEchoRequestMessage();
@@ -80,7 +94,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
             }
         }
 
-        void processHelloMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
+        void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
 
         };
         void processEchoRequestMessage(){
@@ -106,9 +120,6 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         setState(WAIT_HELLO);
-        MPFactories.
-        ctx.writeAndFlush()
-        //TODO - send HELLO
     }
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {

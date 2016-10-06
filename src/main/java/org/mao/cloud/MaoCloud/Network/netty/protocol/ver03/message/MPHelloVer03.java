@@ -1,38 +1,47 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageWriter;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by mao on 2016/9/17.
  */
 public class MPHelloVer03 implements MPHello {
 
-    private String idHashValue;
-    public String getHashValue(){return idHashValue;}
-
-
-    private MPHelloVer03(String hashValue){
-        idHashValue = hashValue;
+    private byte [] idHashValue;
+    public byte [] getHashValue(){
+        return idHashValue;
     }
 
 
-    public static final Writer WRITER = new Writer();
-    public static class Writer implements MPMessageWriter<MPHelloVer03>{}
+    private MPHelloVer03(byte [] idHashValue){
+        this.idHashValue = idHashValue;
+    }
 
-    public static final Reader READER = new Reader();
-    public static class Reader implements MPMessageReader<MPHello>{
 
-        private static final int SHA256_LENGTH = 32;//bytes
+    //TODO - should be updated
+    private static final Reader READER = new Reader();
+    public static Reader reader(){
+        return READER;
+    }
+    public static class Reader implements MPHello.Reader{
+
+        private static final int SHA256_LENGTH = 32; //bytes
+
+        @Override
         public MPHello readFrom(ByteBuf msg) throws MPParseError{
 
             int dataLength = msg.readInt();
-            if(dataLength != SHA256_LENGTH){
+            if(dataLength < SHA256_LENGTH){
                 throw new MPErrorDataLength(dataLength, SHA256_LENGTH);
             }
 
@@ -42,14 +51,51 @@ public class MPHelloVer03 implements MPHello {
         }
     }
 
-    public static Builder builder(){return new Builder();}
+
+    public Writer writer(){
+        return new Writer(this);
+    }
+    static class Writer implements MPHello.Writer{
+
+        MPHelloVer03 msg;
+        ByteBuf data;
+
+        private Writer(MPHelloVer03 msg){
+            this.msg = msg;
+        }
+
+        @Override
+        public void writeVersion(ByteBuf out){
+            out.writeByte(msg.getVersion().get());
+        }
+
+        @Override
+        public void writeType(ByteBuf out){
+            out.writeByte(msg.getType().get());
+        }
+
+        @Override
+        public int prepareData(){
+            data = PooledByteBufAllocator.DEFAULT.heapBuffer();
+            data.writeBytes(msg.getHashValue());
+            return data.readableBytes();
+        }
+
+        @Override
+        public void writeData(ByteBuf out){
+            out.writeBytes(data);
+        }
+    }
+
+    public Builder builder(){
+        return new Builder();
+    }
     public static class Builder implements MPHello.Builder {
 
         private String nodeName;
         private String nodePassword;
-//        private byte [] idHashValue;
 
-        private Builder(){
+        public Builder(){
             nodeName = null;
             nodePassword = null;
         }
@@ -58,6 +104,7 @@ public class MPHelloVer03 implements MPHello {
             nodeName = name;
             return this;
         }
+
         public Builder setNodePassword(String password){
             nodePassword = password;
             return this;
@@ -70,14 +117,25 @@ public class MPHelloVer03 implements MPHello {
                 throw new NullPointerException("Null Pointer: nodePassword");
             }
 
-            return new MPHelloVer03(namePasswdHash());
+            try {
+                return new MPHelloVer03(namePasswordHash());
+            } catch(Exception e) {
+                return null;
+            }
         }
 
-        private String namePasswdHash(){
-            // TODO - achieve this
-            return nodeName + nodePassword;
+        private byte[] namePasswordHash() throws NoSuchAlgorithmException{
+                return MessageDigest
+                        .getInstance("SHA-256")
+                        .digest((nodeName + nodePassword).getBytes());
         }
     }
 
-    public MPMessageType getType(){return MPMessageType.HELLO;}
+
+    public MPVersion getVersion(){
+        return MPVersion.MP_03;
+    }
+    public MPMessageType getType(){
+        return MPMessageType.HELLO;
+    }
 }

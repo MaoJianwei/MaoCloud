@@ -32,7 +32,7 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
 //            return;
 
         ByteBuf tmp = PooledByteBufAllocator.DEFAULT.heapBuffer();
-        final MPMessageWriter WRITER = msg.getWriter();
+        final MPMessageWriter WRITER = msg.writer();
 
         tmp.writeBytes(PROTOCOL_PREFIX);
         WRITER.writeVersion(tmp);
