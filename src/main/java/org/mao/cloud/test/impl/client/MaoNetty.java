@@ -3,8 +3,6 @@ package org.mao.cloud.test.impl.client;
 import org.mao.cloud.MaoCloud.Network.netty.api.MaoProtocolEvent;
 import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDecoder;
 import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolEncoder;
-import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolInboundHandler;
-import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolOutboundHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -39,9 +37,7 @@ public class MaoNetty {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(new LengthFieldBasedFrameDecoder(65535, 8, 2, 1, 0));
                             p.addLast(new MaoProtocolDecoder());
-                            p.addLast(new MaoProtocolInboundHandler());
                             p.addLast(new MaoProtocolEncoder());
-                            p.addLast(new MaoProtocolOutboundHandler());
                             p.addLast(new MaoNettyHandler());
                         }
                     });

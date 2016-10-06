@@ -2,8 +2,6 @@ package org.mao.cloud.test.impl.server;
 
 import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDecoder;
 import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolEncoder;
-import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolInboundHandler;
-import org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolOutboundHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -48,9 +46,7 @@ public class MaoNettyServer {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(new LengthFieldBasedFrameDecoder(65535, 8, 2, 1, 0));
                             p.addLast(new MaoProtocolDecoder());
-                            p.addLast(new MaoProtocolInboundHandler());
                             p.addLast(new MaoProtocolEncoder());
-                            p.addLast(new MaoProtocolOutboundHandler());
                             p.addLast(new MaoNettyServerHandler(clientMap));
 
                         }
