@@ -54,6 +54,7 @@ public abstract class MPMessageVer03 {
                     throw new MPErrorType(2, type>>>4, type&0x0f, true);
             }
         }
+
         private boolean verifyChecksum(ByteBuf msg){
             return true; //TODO
         }

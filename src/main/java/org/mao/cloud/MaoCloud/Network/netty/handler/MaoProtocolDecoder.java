@@ -36,10 +36,17 @@ public class MaoProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             log.error(("Protocol prefix is invalid!"));
             return;
         }
+        log.info("Protocol prefix check OK!");
 
         try {
+            log.info("will Decode a message...");
             MPMessageReader<MPMessage> generalReader = MPFactories.getGeneralReader();
+            log.info("got generalReader, ready to Decode a message...");
             MPMessage mpMessage = generalReader.readFrom(msg);
+            log.info("Decode finish, Type:{}, Version:{}, toString:{}",
+                    mpMessage.getType(),
+                    mpMessage.getVersion(),
+                    mpMessage.toString());
             out.add(mpMessage);
         }catch(MPParseError e){
             log.error("ParseError when decode: " + e.getMessage());

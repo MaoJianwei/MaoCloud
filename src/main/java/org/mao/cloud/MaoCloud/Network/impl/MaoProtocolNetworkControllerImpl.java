@@ -46,8 +46,12 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
 
     public void start() {
         // ----- init Netty Network -----
+
+        log.info("init NioEventLoopGroup...");
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
+
+        log.info("init ServerBootstrap...");
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workerGroup)
@@ -59,27 +63,40 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
                 .childHandler(new NetworkChannelInitializer(this, false));
 
+        log.info("ServerBootstrap init ok");
+
         try {
+            log.info("ready to bind port: {}", SERVER_PORT);
+
             serverChannel = serverBootstrap.bind(SERVER_PORT).sync().channel();
+
+            log.info("bind finish, channel info Open:{}, Active:{}, LocalAddress:{}",
+                    serverChannel.isOpen(),
+                    serverChannel.isActive(),
+                    serverChannel.localAddress().toString());
         } catch (Throwable t) {
             t.printStackTrace();
             log.error(t.getMessage());
         }
 
-
-
         bossGroup.scheduleAtFixedRate(new ConnectTask(this), 0, 30, TimeUnit.SECONDS);
+
+        log.info("schedule ConnectTask over by {} delay, {} {}", 0, 30, TimeUnit.SECONDS);
     }
 
     public void stop() {
         try {
+            log.info("closing serverChannel...");
             serverChannel.close().sync();
+            log.info("closed serverChannel.");
         } catch (Throwable t) {
             t.printStackTrace();
             log.error(t.getMessage());
         } finally {
+            log.info("calling shutdownGracefully of workerGroup and bossGroup.");
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
+            log.info("called shutdownGracefully of workerGroup and bossGroup.");
         }
     }
 
@@ -100,6 +117,8 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         public void run() {
 
             try {
+                log.info("init Bootstrap...");
+
                 Bootstrap b = new Bootstrap();
                 b.group(controller.bossGroup)
                         .channel(NioSocketChannel.class)
@@ -107,14 +126,25 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
                         .handler(new NetworkChannelInitializer(controller, true));
 
+                log.info("Bootstrap init ok");
 
                 while (true) {
                     String nodeIp = controller.agent.getOneUnConnectedNode();
+                    log.info("get a new nodeIp: {}", nodeIp);
+
                     if(nodeIp == null){
                         break;
                     }
 
+                    log.info("connecting to {}...", nodeIp);
+
                     Channel ch = b.connect(nodeIp, SERVER_PORT).sync().channel();
+
+                    log.info("client channel info Open:{}, Active:{}, RemoteAddress:{}",
+                            ch.isOpen(),
+                            ch.isActive(),
+                            ch.remoteAddress().toString());
+
                     if (ch.isActive()) {
                         //TODO - CHECK - if it will be OPEN but not ACTIVE when success?
 
@@ -123,7 +153,18 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                                 .setNodeName("MaoTestB")
                                 .setNodePassword("987654321")
                                 .build();
+
+                        log.info("sending MPHello, Type:{}, Version:{}, idHashValue:{}",
+                                hello.getType(),
+                                hello.getVersion(),
+                                hello.getHashValue());
+
                         ch.writeAndFlush(hello);
+
+                        log.info("sended MPHello, Type:{}, Version:{}, idHashValue:{}",
+                                hello.getType(),
+                                hello.getVersion(),
+                                hello.getHashValue());
                     }
                 }
             } catch (Exception e) {
@@ -146,6 +187,8 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         @Override
         public void initChannel(SocketChannel ch) {
             try {
+                log.info("initializing pipeline for channel: {} ...", ch.remoteAddress().toString());
+
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(
                         //Attention - assume that if we use LengthFieldBasedFrameDecoder, the frame is certainly unbroken.
@@ -155,6 +198,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                         new MaoProtocolEncoder(),
                         new MaoProtocolDuplexHandler(controller, isRoleClient));
 
+                log.info("initialize pipeline for channel: {} OK!", ch.remoteAddress().toString());
             } catch (Throwable t) {
                 t.printStackTrace();
                 log.error(t.getMessage());

@@ -9,6 +9,8 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
  */
 public interface MPHello extends MPMessage {
 
+    byte [] getHashValue();
+
     //    Reader reader();
     interface Reader extends MPMessage.Reader<MPHello>{
     }

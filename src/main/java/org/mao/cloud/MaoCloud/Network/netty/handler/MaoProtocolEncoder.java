@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 
 /**
@@ -30,7 +31,10 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
 //        if(!msg.checkValid())
 //            return;
 
+        log.info("Will encode new MPMessage...");
+
         ByteBuf tmp = PooledByteBufAllocator.DEFAULT.heapBuffer();
+        log.info("tmp heap buffer generated: {}", tmp.toString());
         final MPMessageWriter WRITER = msg.writer();
 
         tmp.writeBytes(PROTOCOL_PREFIX);
@@ -38,14 +42,18 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
         WRITER.writeType(tmp);
 
         final boolean checkSumExist = false; //TODO - Get and Write CheckSum_Exist
+        log.info("got checkSumExist: {}", checkSumExist);
         final boolean securePolicy = false; //TODO - Get and Write Secure_Policy
+        log.info("got securePolicy: {}", securePolicy);
         tmp.writeByte(0);
         tmp.writeByte(0);
 
         int dataLength = WRITER.prepareData();
+        log.info("initial Datalength: {}", dataLength);
         if(checkSumExist){
             dataLength += CHECKSUM_LENGTH;
         }
+        log.info("final Datalength: {}", dataLength);
         tmp.writeInt(dataLength);
 
         WRITER.writeData(tmp);
@@ -56,7 +64,9 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
             tmp.readBytes(packet);
 
             try {
+                log.info("will calculate SHA-256...");
                 byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(packet);
+                log.info("SHA-256 checksum is {}", String.format("%064x", new BigInteger(1, sha256)));
 
                 out.writeBytes(packet);
                 out.writeBytes(sha256);
@@ -68,6 +78,8 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
             out.writeBytes(tmp);
         }
 
+        log.info("release tmp Bytebuf...");
         tmp.release();
+        log.info("release tmp over.");
     }
 }

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mao on 5/2/16.
  */
-@Component(immediate = true)
+@Component(immediate = false) //TODO - modify to true
 @Service
 public class MaoCloud implements MaoCloudService {
 

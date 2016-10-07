@@ -42,6 +42,8 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
     @Activate
     private void activate() {
 
+        log.info("Init...");
+
         configuredNodeSet.add("10.103.89.180");
         configuredNodeSet.add("10.103.89.116");
 
@@ -59,16 +61,23 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
                 .filter(address -> !localAddresses.contains(address))
                 .forEach(address -> unConnectedNodes.offer(address));
 
+        log.info("All unConnectedNodes is: {}", unConnectedNodes.toString());
 
         networkController.start();
+
+        log.info("activate finish !");
     }
 
     @Deactivate
     private void deactivate() {
+        log.info("Deactivating...");
         networkController.stop();
+        log.info("deactivate OK !");
     }
 
     private class MaoProtocolNodeAgent implements MaoProtocolAgent {
+
+        private final Logger log = LoggerFactory.getLogger(getClass());
 
         @Override
         public boolean addConnectedNode(MaoProtocolNode node) {
@@ -86,6 +95,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
                 nodeIp = unConnectedNodes.poll();
                 connectingNodes.add(nodeIp);
             }
+            log.info("poll a unConnected node: {}", nodeIp);
             return nodeIp;
         }
     }
