@@ -4,10 +4,8 @@ import io.netty.buffer.ByteBuf;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoReply;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoRequest;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength;
 
 /**
  * Created by mao on 2016/9/18.

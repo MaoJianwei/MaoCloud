@@ -19,7 +19,6 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**

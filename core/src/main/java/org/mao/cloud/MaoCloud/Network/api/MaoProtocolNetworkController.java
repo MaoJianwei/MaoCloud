@@ -1,7 +1,5 @@
 package org.mao.cloud.MaoCloud.Network.api;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
 
 /**

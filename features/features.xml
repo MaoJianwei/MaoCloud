@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ Copyright (c) 2016. Mao Jianwei
+  ~
+  ~ MaoCloud deployed in Beijing University of Posts and Telecommunications(BUPT), China.
+  ~
+  ~ All Rights Reserved.
+  -->
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          name="mao-cloud-@MAOCLOUD-FEATURE-VERSION">
+    <repository>mvn:org.apache.karaf.features/standard/3.0.8/xml/features</repository>
+
+    <feature name="mao-cloud-thirdparty-base" version="@MAOCLOUD-FEATURE-VERSION"
+             description="MaoCloud 3rd party dependencies">
+        <bundle>mvn:io.netty/netty-all/4.1.5.Final</bundle>
+    </feature>
+
+    <feature name="mao-cloud-core" version="@MAOCLOUD-FEATURE-VERSION"
+             description="MaoCloud core components">
+        <feature>mao-cloud-core</feature>
+        <bundle>mvn:org.mao/mao-cloud-core/@MAOCLOUD-VERSION</bundle>
+    </feature>
+
+</features>
