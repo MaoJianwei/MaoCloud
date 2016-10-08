@@ -36,26 +36,24 @@
     <modules>
         <module>branding</module>
         <module>core</module>
-        <module>features</module>
+        <!--<module>features</module>-->
     </modules>
 
 
     <dependencies>
 
-        <!-- http://mvnrepository.com/artifact/io.netty/netty-all -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.5.Final</version>
-        </dependency>
-
-
-
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <version>1.9.12</version>
+            <scope>provided</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix</groupId>-->
+            <!--<artifactId>org.apache.felix.scr</artifactId>-->
+            <!--<version>1.8.2</version>-->
+        <!--</dependency>-->
+
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -78,107 +76,111 @@
     </dependencies>
 
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--&lt;!&ndash; both for felix.scr &ndash;&gt;-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-bundle-plugin</artifactId>-->
-                <!--<version>3.0.1</version>-->
-                <!--<extensions>true</extensions>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-scr-plugin</artifactId>-->
-                <!--<version>1.21.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>generate-scr-srcdescriptor</id>-->
-                        <!--<goals>-->
-                            <!--<goal>scr</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
-
-            <!--&lt;!&ndash;&lt;!&ndash; generate Manifest &ndash;&gt;&ndash;&gt;-->
-            <!--&lt;!&ndash;<plugin>&ndash;&gt;-->
-                <!--&lt;!&ndash;<groupId>org.apache.maven.plugins</groupId>&ndash;&gt;-->
-                <!--&lt;!&ndash;<artifactId>maven-jar-plugin</artifactId>&ndash;&gt;-->
-                <!--&lt;!&ndash;<version>2.6</version>&ndash;&gt;-->
-                <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<archive>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<manifest>&ndash;&gt;-->
-
-                            <!--&lt;!&ndash;&lt;!&ndash;<mainClass>org.mao.cloud</mainClass>&ndash;&gt;&ndash;&gt;-->
-
-                            <!--&lt;!&ndash;&lt;!&ndash; add dependency classpath: ./dependency-jars/ should be same to maven-dependency-plugin below&ndash;&gt;&ndash;&gt;-->
-                            <!--&lt;!&ndash;&lt;!&ndash;<addClasspath>true</addClasspath>&ndash;&gt;&ndash;&gt;-->
-                            <!--&lt;!&ndash;&lt;!&ndash;<classpathPrefix>dependency-jars/</classpathPrefix>&ndash;&gt;&ndash;&gt;-->
-
-                            <!--&lt;!&ndash;&lt;!&ndash; add detail info to manifest &ndash;&gt;&ndash;&gt;-->
-                            <!--&lt;!&ndash;<addDefaultImplementationEntries>true</addDefaultImplementationEntries>&ndash;&gt;-->
-                            <!--&lt;!&ndash;&lt;!&ndash;<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>&ndash;&gt;&ndash;&gt;-->
-
-                        <!--&lt;!&ndash;</manifest>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</archive>&ndash;&gt;-->
-                <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
-            <!--&lt;!&ndash;</plugin>&ndash;&gt;-->
-
-
-            <!--&lt;!&ndash;&lt;!&ndash; maven-shade-plugin will unzip the dependency jar, copy the .class files to our app jar &ndash;&gt;&ndash;&gt;-->
-            <!--&lt;!&ndash;&lt;!&ndash; so all dependencies is OK &ndash;&gt;&ndash;&gt;-->
-            <!--&lt;!&ndash;<plugin>&ndash;&gt;-->
-                <!--&lt;!&ndash;<groupId>org.apache.maven.plugins</groupId>&ndash;&gt;-->
-                <!--&lt;!&ndash;<artifactId>maven-shade-plugin</artifactId>&ndash;&gt;-->
-                <!--&lt;!&ndash;<version>2.4.3</version>&ndash;&gt;-->
-                <!--&lt;!&ndash;<executions>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<execution>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<phase>package</phase>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<goals>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<goal>shade</goal>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</goals>&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;<configuration>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;<transformers>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;<mainClass>org.maojianwei.chinese.poetry.app.MaoChinesePoetry</mainClass>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;</transformer>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;</transformers>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;</configuration>&ndash;&gt;&ndash;&gt;-->
-                    <!--&lt;!&ndash;</execution>&ndash;&gt;-->
-                <!--&lt;!&ndash;</executions>&ndash;&gt;-->
-            <!--&lt;!&ndash;</plugin>&ndash;&gt;-->
-
-
-            <!--&lt;!&ndash; copy dependency to ${project.build.directory}/dependency-jars/&ndash;&gt;-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<version>2.10</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>copy-dependencies</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-dependencies</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>-->
-                                <!--${project.build.directory}/dependency-jars/-->
-                            <!--</outputDirectory>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+    <build>
+        <plugins>
+            <!-- both for felix.scr -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
                 <!--<configuration>-->
-                    <!--<source>1.8</source>-->
-                    <!--<target>1.8</target>-->
+                    <!--<niceManifest>true</niceManifest>-->
+                <!--</configuration>-->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <version>1.22.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-srcdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!--&lt;!&ndash; generate Manifest &ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>2.6</version>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+
+                            <!--&lt;!&ndash;<mainClass>org.mao.cloud</mainClass>&ndash;&gt;-->
+
+                            <!--&lt;!&ndash; add dependency classpath: ./dependency-jars/ should be same to maven-dependency-plugin below&ndash;&gt;-->
+                            <!--&lt;!&ndash;<addClasspath>true</addClasspath>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<classpathPrefix>dependency-jars/</classpathPrefix>&ndash;&gt;-->
+
+                            <!--&lt;!&ndash; add detail info to manifest &ndash;&gt;-->
+                            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
+                            <!--&lt;!&ndash;<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>&ndash;&gt;-->
+
+                        <!--</manifest>-->
+                    <!--</archive>-->
                 <!--</configuration>-->
             <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
+
+
+            <!--&lt;!&ndash; maven-shade-plugin will unzip the dependency jar, copy the .class files to our app jar &ndash;&gt;-->
+            <!--&lt;!&ndash; so all dependencies is OK &ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-shade-plugin</artifactId>-->
+                <!--<version>2.4.3</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>shade</goal>-->
+                        <!--</goals>-->
+                        <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<transformers>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<mainClass>org.maojianwei.chinese.poetry.app.MaoChinesePoetry</mainClass>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</transformer>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</transformers>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+
+            <!-- copy dependency to ${project.build.directory}/dependency-jars/-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency-jars/
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

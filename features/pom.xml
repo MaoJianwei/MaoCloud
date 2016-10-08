@@ -52,7 +52,7 @@
                 </executions>
                 <configuration>
                     <file>${pom.basedir}/features.xml</file>
-                    <outputFile>${pom.basedir}/target/features.xml</outputFile>
+                    <outputFile>${pom.basedir}/target/org/mao/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</outputFile>
                     <replacements>
                         <replacement>
                             <token>@MAOCLOUD-VERSION</token>
@@ -79,7 +79,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/features.xml</file>
+                                    <file>target/org/mao/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
