@@ -5,7 +5,6 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPFactory;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPInvalidPrefix;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPUnsupportedVersion;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.base.MPFactoryVer03;
