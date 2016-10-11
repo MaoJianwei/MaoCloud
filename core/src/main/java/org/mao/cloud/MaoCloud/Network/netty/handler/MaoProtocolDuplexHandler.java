@@ -40,7 +40,9 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         state = MaoProtocolState.INIT;
     }
 
-
+    private MaoProtocolState getState(){
+        return this.state;
+    }
     private void setState(MaoProtocolState newState){
         this.state = newState;
     }
@@ -58,15 +60,16 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
             void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
 
                 //TODO - below is hello world Test
+                ChannelHandler channelHandler = ctx.handler();
+                MaoProtocolDuplexHandler h = (MaoProtocolDuplexHandler) channelHandler;
 
                 log.info("ready to process a MPHello, state:{} Type: {}, Version: {}, idHashValue: {}",
-                        this,
+                        h.getState(),
                         mpHello.getType(),
                         mpHello.getVersion(),
                         mpHello.getHashValue());
 
-                ChannelHandler channelHandler = ctx.handler();
-                MaoProtocolDuplexHandler h = (MaoProtocolDuplexHandler) channelHandler;
+
 
                 if(!h.isRoleClient) {
                     log.info("My role is Server, ready to send hello as a reply.");
@@ -90,7 +93,8 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                 }
 
                 log.info("will get new MaoProtocolNode representation...");
-                h.maoProtocolNode = h.controller.getMaoProtocolNode(ctx.channel().remoteAddress().toString());
+                h.maoProtocolNode = h.controller.getMaoProtocolNode(
+                        ctx.channel().remoteAddress().toString().split(":")[0].replace("/",""));
                 log.info("got a new MaoProtocolNode representation, {}", h.maoProtocolNode.getAddress());
 
                 log.info("ready to announce maoProtocolNode connected...");
@@ -98,7 +102,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                 log.info("announce maoProtocolNode connected, finished");
 
                 h.setState(ACTIVE);
-                log.info("state should go to ACTIVE, state: {}", this);
+                log.info("state should go to ACTIVE, state: {}", h.getState());
             };
         },
         ACTIVE{
@@ -112,7 +116,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         private void processMPMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
 
             log.info("ready to process a MPMessage, state:{} Type: {}, Version: {}",
-                    this,
+                    ((MaoProtocolDuplexHandler)ctx.handler()).getState(),
                     mpMessage.getType(),
                     mpMessage.getVersion());
 
@@ -165,7 +169,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         channel = ctx.channel();
-        log.warn("go into channelActive, state: {}, channel's string: {}",
+        log.info("go into channelActive, state: {}, channel's string: {}",
                 state,
                 channel.toString());
         setState(WAIT_HELLO);
@@ -174,7 +178,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
 
-        log.warn("go into channelInactive, state: {}", state);
+        log.info("go into channelInactive, state: {}", state);
 
         setState(ENDING);
 

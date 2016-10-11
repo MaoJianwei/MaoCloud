@@ -1,5 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.impl;
 
+import com.google.common.net.InetAddresses;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -19,7 +20,13 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
+
+import static org.mao.cloud.util.ConstUtil.EOL;
+import static org.mao.cloud.util.IpUtil.isIpv4;
+import static org.mao.cloud.util.IpUtil.isIpv6;
 
 /**
  * Created by mao on 2016/10/5.
@@ -56,6 +63,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, TCP_BACKLOG_VALUE)
+                .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -78,7 +86,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
             log.error(t.getMessage());
         }
 
-        bossGroup.scheduleAtFixedRate(new ConnectTask(this), 0, 30, TimeUnit.SECONDS);
+        bossGroup.schedule(new ConnectTask(this), 30, TimeUnit.SECONDS);
 
         log.info("schedule ConnectTask over by {} delay, {} {}", 0, 30, TimeUnit.SECONDS);
     }
@@ -108,37 +116,50 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         private final Logger log = LoggerFactory.getLogger(getClass());
         private MaoProtocolNetworkControllerImpl controller;
 
+        Bootstrap b = new Bootstrap();
+
         public ConnectTask(MaoProtocolNetworkControllerImpl controller) {
             this.controller = controller;
+
+            log.info("init Bootstrap...");
+            b.group(controller.bossGroup)
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // TODO - VERITY - ATTENTION !!!
+                    .handler(new NetworkChannelInitializer(controller, true));
+            log.info("Bootstrap init ok");
         }
 
         @Override
         public void run() {
 
+            log.info("New ConnectTask start...");
+
             try {
-                log.info("init Bootstrap...");
-
-                Bootstrap b = new Bootstrap();
-                b.group(controller.bossGroup)
-                        .channel(NioSocketChannel.class)
-                        .option(ChannelOption.TCP_NODELAY, true)
-                        .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
-                        .handler(new NetworkChannelInitializer(controller, true));
-
-                log.info("Bootstrap init ok");
-
                 while (true) {
-                    String nodeIp = controller.agent.getOneUnConnectedNode();
+                    InetAddress nodeIp = controller.agent.getOneUnConnectedNode();
                     log.info("get a new nodeIp: {}", nodeIp);
-
-                    if(nodeIp == null){
+                    if (nodeIp == null) {
                         break;
+                    }
+                    if (isIpv4(nodeIp)) {
+                        Inet4Address ipv4 = controller.agent.getLocalIpv4();
+                        if (ipv4 != null) {
+                            if (!verifyActiveConnectionRule(ipv4, nodeIp)){
+                                continue;
+                            }
+                        } else {
+                            log.error("Local Ip is unavailable!(null)");
+                            break;
+                        }
+                    } else {
+                        //TODO - ipv6
+                        continue;
                     }
 
                     log.info("connecting to {}...", nodeIp);
-
                     Channel ch = b.connect(nodeIp, SERVER_PORT).sync().channel();
-
                     log.info("client channel info Open:{}, Active:{}, RemoteAddress:{}",
                             ch.isOpen(),
                             ch.isActive(),
@@ -157,10 +178,8 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                                 hello.getType(),
                                 hello.getVersion(),
                                 hello.getHashValue());
-
                         ch.writeAndFlush(hello);
-
-                        log.info("sended MPHello, Type:{}, Version:{}, idHashValue:{}",
+                        log.info("sent MPHello, Type:{}, Version:{}, idHashValue:{}",
                                 hello.getType(),
                                 hello.getVersion(),
                                 hello.getHashValue());
@@ -169,6 +188,33 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
             } catch (Exception e) {
                 log.warn("Exception while connecting others: {}", e.getMessage());
             }
+
+            bossGroup.schedule(this, 30, TimeUnit.SECONDS);
+        }
+
+        private boolean verifyActiveConnectionRule(InetAddress localIp, InetAddress remoteIp) {
+            if(localIp.getClass().equals(remoteIp.getClass())){
+                byte [] localIpBytes = localIp.getAddress();
+                byte [] remoteIpBytes = remoteIp.getAddress();
+
+                for(int i = 0; i < localIpBytes.length ; i++){
+                    if(localIpBytes[i] < remoteIpBytes[i]){
+                        log.info("Verify Pass, local: {}, remote: {}",
+                                localIp.getHostAddress(), remoteIp.getHostAddress());
+                        return true;
+                    } else if (localIpBytes[i] > remoteIpBytes[i]) {
+                        log.info("Verify Deny, local: {}, remote: {}",
+                                localIp.getHostAddress(), remoteIp.getHostAddress());
+                        return false;
+                    }
+                }
+                log.error("Local Ip is equal to Remote Ip! Please troubleshoot!"+ EOL +
+                        "localIp: {}, remoteIp: {}", localIp.getHostAddress(), remoteIp.getHostAddress());
+            } else {
+                log.error("IP type not match! localIp: {}, remoteIp: {}",
+                        localIp.getClass(), remoteIp.getClass());
+            }
+            return false;
         }
     }
 
@@ -186,7 +232,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         @Override
         public void initChannel(SocketChannel ch) {
             try {
-                log.info("initializing pipeline for channel: {} ...", ch.remoteAddress().toString());
+                log.info("initializing pipeline for client:{} channel ...", isRoleClient);
 
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(
@@ -197,7 +243,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                         new MaoProtocolEncoder(),
                         new MaoProtocolDuplexHandler(controller, isRoleClient));
 
-                log.info("initialize pipeline for channel: {} OK!", ch.remoteAddress().toString());
+                log.info("initialize pipeline for client channel: {} OK!", ch);
             } catch (Throwable t) {
                 t.printStackTrace();
                 log.error(t.getMessage());

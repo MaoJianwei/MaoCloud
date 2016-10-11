@@ -12,6 +12,8 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.PropertyConfigurator;
 import org.mao.cloud.intf.MaoCloudService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mao on 5/2/16.
  */
-@Component(immediate = false) //TODO - modify to true
+@Component(immediate = true) //TODO - modify to true
 @Service
 public class MaoCloud implements MaoCloudService {
 
@@ -29,8 +31,10 @@ public class MaoCloud implements MaoCloudService {
 
     @Activate
     protected void activate(){
-        log.trace("MaoCloud init ...");
-        log.trace("MaoCloud {} , Welcome aboard!", VERSION);
+        log.info("MaoCloud init ...");
+//        LogManager.resetConfiguration();
+//        PropertyConfigurator.configure(getClass().getResource("/log4j.properties"));
+        log.info("MaoCloud {} , Welcome aboard!", VERSION);
     }
 
 
