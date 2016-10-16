@@ -106,8 +106,8 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         }
     }
 
-    public MaoProtocolNode getMaoProtocolNode(String address) {
-        return new MaoProtocolNode(address, agent);
+    public MaoProtocolNode getMaoProtocolNode(Channel channel) {
+        return new MaoProtocolNode(channel, agent);
     }
 
     private class ConnectTask implements Runnable {

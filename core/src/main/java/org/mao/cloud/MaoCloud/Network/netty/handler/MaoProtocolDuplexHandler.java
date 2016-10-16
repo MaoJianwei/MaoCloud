@@ -93,8 +93,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                 }
 
                 log.info("will get new MaoProtocolNode representation...");
-                h.maoProtocolNode = h.controller.getMaoProtocolNode(
-                        ctx.channel().remoteAddress().toString().split(":")[0].replace("/",""));
+                h.maoProtocolNode = h.controller.getMaoProtocolNode(ctx.channel());
                 log.info("got a new MaoProtocolNode representation, {}", h.maoProtocolNode.getAddress());
 
                 log.info("ready to announce maoProtocolNode connected...");

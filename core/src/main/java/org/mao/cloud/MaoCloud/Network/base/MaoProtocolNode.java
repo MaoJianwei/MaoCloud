@@ -1,5 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.base;
 
+import io.netty.channel.Channel;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
 
 /**
@@ -7,12 +8,18 @@ import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
  */
 public class MaoProtocolNode {
 
-    private String address;
     private MaoProtocolAgent agent;
+    private String address;
+    private Channel channel;
 
-    public  MaoProtocolNode(String address, MaoProtocolAgent agent){
-        this.address = address;
+    public MaoProtocolNode(Channel channel, MaoProtocolAgent agent){
         this.agent = agent;
+        this.channel = channel;
+        this.address = channel.remoteAddress().toString().split(":")[0].replace("/","");
+    }
+
+    public String getChannelInfo(){
+        return channel.toString();
     }
 
     public String getAddress(){

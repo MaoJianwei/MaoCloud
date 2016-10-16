@@ -1,5 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.api;
 
+import io.netty.channel.Channel;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
 
 /**
@@ -9,6 +10,6 @@ public interface MaoProtocolNetworkController {
 
     void start();
     void stop();
-    MaoProtocolNode getMaoProtocolNode(String address);
+    MaoProtocolNode getMaoProtocolNode(Channel channel);
 
 }

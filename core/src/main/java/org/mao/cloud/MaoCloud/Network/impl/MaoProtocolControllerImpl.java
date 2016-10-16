@@ -7,13 +7,16 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolController;
+import org.mao.cloud.MaoCloud.Network.api.MaoProtocolControllerAdmin;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -27,7 +30,7 @@ import static org.mao.cloud.util.IpUtil.getIpFromString;
  */
 @Component(immediate = true)
 @Service
-public class MaoProtocolControllerImpl implements MaoProtocolController {
+public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProtocolControllerAdmin {
 
     private static final Logger log = LoggerFactory.getLogger(MaoProtocolControllerImpl.class);
 
@@ -71,6 +74,11 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
         log.info("deactivate OK !");
     }
 
+
+    // --- MaoProtocolControllerAdmin ---
+    public List<MaoProtocolNode> getAllConnectedNodes(){
+        return new ArrayList<>(connectedNodes.values());
+    }
 
 
     private boolean initLocalIps() {
