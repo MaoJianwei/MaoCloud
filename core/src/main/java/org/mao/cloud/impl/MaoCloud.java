@@ -12,8 +12,8 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
 import org.mao.cloud.intf.MaoCloudService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ public class MaoCloud implements MaoCloudService {
     @Activate
     protected void activate(){
         log.info("MaoCloud init ...");
-//        LogManager.resetConfiguration();
-//        PropertyConfigurator.configure(getClass().getResource("/log4j.properties"));
+        LogManager.resetConfiguration();
+        PropertyConfigurator.configure(getClass().getResource("/log4j.cfg"));
         log.info("MaoCloud {} , Welcome aboard!", VERSION);
     }
 

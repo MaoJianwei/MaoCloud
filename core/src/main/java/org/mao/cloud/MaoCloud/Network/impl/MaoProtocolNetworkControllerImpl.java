@@ -58,7 +58,6 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         workerGroup = new NioEventLoopGroup();
 
         log.info("init ServerBootstrap...");
-
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -86,9 +85,9 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
             log.error(t.getMessage());
         }
 
-        bossGroup.schedule(new ConnectTask(this), 30, TimeUnit.SECONDS);
+        bossGroup.schedule(new ConnectTask(this), 0, TimeUnit.SECONDS);
 
-        log.info("schedule ConnectTask over by {} delay, {} {}", 0, 30, TimeUnit.SECONDS);
+        log.info("schedule ConnectTask over");
     }
 
     public void stop() {
@@ -136,79 +135,83 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
 
             log.info("New ConnectTask start...");
 
-            try {
-                while (true) {
-                    InetAddress nodeIp = controller.agent.getOneUnConnectedNode();
-                    log.info("get a new nodeIp: {}", nodeIp);
-                    if (nodeIp == null) {
-                        break;
-                    }
-                    if (isIpv4(nodeIp)) {
-                        Inet4Address ipv4 = controller.agent.getLocalIpv4();
-                        if (ipv4 != null) {
-                            if (!verifyActiveConnectionRule(ipv4, nodeIp)){
-                                continue;
-                            }
-                        } else {
-                            log.error("Local Ip is unavailable!(null)");
-                            break;
+            while (true) {
+                InetAddress nodeIp = controller.agent.getOneUnConnectedNode();
+                log.info("get a new nodeIp: {}", nodeIp);
+                if (nodeIp == null) {
+                    break;
+                }
+                if (isIpv4(nodeIp)) {
+                    Inet4Address ipv4 = controller.agent.getLocalIpv4();
+                    if (ipv4 != null) {
+                        if (!verifyActiveConnectionRule(ipv4, nodeIp)) {
+                            continue;
                         }
                     } else {
-                        //TODO - ipv6
-                        continue;
+                        log.error("Local Ip is unavailable!(null)");
+                        break;
                     }
-
-                    log.info("connecting to {}...", nodeIp);
-                    Channel ch = b.connect(nodeIp, SERVER_PORT).sync().channel();
-                    log.info("client channel info Open:{}, Active:{}, RemoteAddress:{}",
-                            ch.isOpen(),
-                            ch.isActive(),
-                            ch.remoteAddress().toString());
-
-                    if (ch.isActive()) {
-                        //TODO - CHECK - if it will be OPEN but not ACTIVE when success?
-
-                        MPHello hello = MPFactories.getFactory(MPVersion.MP_03)
-                                .buildHello()
-                                .setNodeName("MaoTestB")
-                                .setNodePassword("987654321")
-                                .build();
-
-                        log.info("sending MPHello, Type:{}, Version:{}, idHashValue:{}",
-                                hello.getType(),
-                                hello.getVersion(),
-                                hello.getHashValue());
-                        ch.writeAndFlush(hello);
-                        log.info("sent MPHello, Type:{}, Version:{}, idHashValue:{}",
-                                hello.getType(),
-                                hello.getVersion(),
-                                hello.getHashValue());
-                    }
+                } else {
+                    //TODO - ipv6
+                    continue;
                 }
-            } catch (Exception e) {
-                log.warn("Exception while connecting others: {}", e.getMessage());
+
+
+                log.info("connecting to {}...", nodeIp);
+                Channel ch;
+                try {
+                    ch = b.connect(nodeIp, SERVER_PORT).sync().channel();
+                } catch (Exception e) {
+                    log.warn("Exception while connecting others: {}, will connect others", e.getMessage());
+                    continue;
+                }
+                log.info("client channel info Open:{}, Active:{}, RemoteAddress:{}",
+                        ch.isOpen(),
+                        ch.isActive(),
+                        ch.remoteAddress().toString());
+
+                if (ch.isActive()) {
+                    //TODO - CHECK - if it will be OPEN but not ACTIVE when success?
+
+                    MPHello hello = MPFactories.getFactory(MPVersion.MP_03)
+                            .buildHello()
+                            .setNodeName("MaoTestB")
+                            .setNodePassword("987654321")
+                            .build();
+
+                    log.info("sending MPHello, Type:{}, Version:{}, idHashValue:{}",
+                            hello.getType(),
+                            hello.getVersion(),
+                            hello.getHashValue());
+                    ch.writeAndFlush(hello);
+                    log.info("sent MPHello, Type:{}, Version:{}, idHashValue:{}",
+                            hello.getType(),
+                            hello.getVersion(),
+                            hello.getHashValue());
+                }
             }
+
 
             bossGroup.schedule(this, 30, TimeUnit.SECONDS);
         }
 
         private boolean verifyActiveConnectionRule(InetAddress localIp, InetAddress remoteIp) {
-            if(localIp.getClass().equals(remoteIp.getClass())){
-                byte [] localIpBytes = localIp.getAddress();
-                byte [] remoteIpBytes = remoteIp.getAddress();
+            if (localIp.getClass().equals(remoteIp.getClass())) {
+                byte[] localIpBytes = localIp.getAddress();
+                byte[] remoteIpBytes = remoteIp.getAddress();
 
-                for(int i = 0; i < localIpBytes.length ; i++){
-                    if(localIpBytes[i] < remoteIpBytes[i]){
+                for (int i = 0; i < localIpBytes.length; i++) {
+                    if ((localIpBytes[i]&0xFF) < (remoteIpBytes[i]&0xFF)) {
                         log.info("Verify Pass, local: {}, remote: {}",
                                 localIp.getHostAddress(), remoteIp.getHostAddress());
                         return true;
-                    } else if (localIpBytes[i] > remoteIpBytes[i]) {
+                    } else if ((localIpBytes[i]&0xFF) > (remoteIpBytes[i]&0xFF)) {
                         log.info("Verify Deny, local: {}, remote: {}",
                                 localIp.getHostAddress(), remoteIp.getHostAddress());
                         return false;
                     }
                 }
-                log.error("Local Ip is equal to Remote Ip! Please troubleshoot!"+ EOL +
+                log.error("Local Ip is equal to Remote Ip! Please troubleshoot!" + EOL +
                         "localIp: {}, remoteIp: {}", localIp.getHostAddress(), remoteIp.getHostAddress());
             } else {
                 log.error("IP type not match! localIp: {}, remoteIp: {}",

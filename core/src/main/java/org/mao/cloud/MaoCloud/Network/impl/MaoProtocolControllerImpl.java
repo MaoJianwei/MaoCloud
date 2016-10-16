@@ -113,8 +113,17 @@ public class MaoProtocolControllerImpl implements MaoProtocolController {
     }
 
     private void getConfiguredNodeSet(){
-        configuredNodeSet.add("10.103.89.180");
-        configuredNodeSet.add("10.103.89.116");
+        configuredNodeSet.add("10.103.89.180"); //VM
+
+        configuredNodeSet.add("10.103.89.201");
+        configuredNodeSet.add("10.103.89.247");
+        configuredNodeSet.add("10.117.6.230");
+        configuredNodeSet.add("10.117.6.235");
+        configuredNodeSet.add("10.210.107.70");
+        configuredNodeSet.add("10.210.107.74");
+        configuredNodeSet.add("10.210.107.79");
+
+        configuredNodeSet.add("10.210.107.254");
     }
 
     // filter to exclude myself ip.

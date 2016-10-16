@@ -5,6 +5,12 @@ package org.mao.cloud.util;
  */
 public final class ConstUtil {
 
-    //please just use EOL in Debug, Warn and Error log level :)
+
+    /**
+     * please just use EOL in Debug, Warn and Error log level :)
+     *
+     * ban to be used in {@link org.mao.cloud.MaoCloud.Network.netty.protocol},
+     * for decrease dependency.
+     */
     public static final String EOL = "%n";
 }
