@@ -3,6 +3,10 @@ package org.mao.cloud.MaoCloud.Network.base;
 import io.netty.channel.Channel;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
 
+import java.net.InetAddress;
+
+import static org.mao.cloud.util.IpUtil.strToInet;
+
 /**
  * Created by mao on 2016/10/5.
  */
@@ -22,9 +26,13 @@ public class MaoProtocolNode {
         return channel.toString();
     }
 
-    public String getAddress(){
+    public InetAddress getAddressInet(){
+        return strToInet(address);
+    }
+    public String getAddressStr(){
         return address;
     }
+
 
 
 
@@ -32,5 +40,7 @@ public class MaoProtocolNode {
     public boolean announceConnected(){
         return agent.addConnectedNode(this);
     }
-
+    public boolean announceDisConnected(){
+        return agent.removeConnectedNode(this);
+    }
 }

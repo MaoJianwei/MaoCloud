@@ -10,20 +10,17 @@ import org.mao.cloud.MaoCloud.Network.api.MaoProtocolController;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolControllerAdmin;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
+import org.mao.cloud.util.IpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.mao.cloud.util.IpUtil.INVALID_IPV4_ADDRESS;
-import static org.mao.cloud.util.IpUtil.INVALID_IPV6_ADDRESS;
-import static org.mao.cloud.util.IpUtil.getIpFromString;
+import static org.mao.cloud.util.IpUtil.*;
 
 /**
  * Created by mao on 2016/10/5.
@@ -43,8 +40,8 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
     private Inet6Address ipv6 = INVALID_IPV6_ADDRESS;
 
     private ConcurrentSet<String> configuredNodeSet = new ConcurrentSet<>();
-    private ConcurrentLinkedQueue<String> unConnectedNodes = new ConcurrentLinkedQueue<>();
-    private ConcurrentSet<String> connectingNodes = new ConcurrentSet<>();
+    private ConcurrentSet<String> unConnectedNodes = new ConcurrentSet<>();
+//    private ConcurrentSet<String> connectingNodes = new ConcurrentSet<>();
     private ConcurrentMap<String, MaoProtocolNode> connectedNodes = new ConcurrentHashMap<>();
 
     @Activate
@@ -62,7 +59,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 
         initUnconnectedNodes();
 
-        networkController.start();
+        networkController.start(new HashSet<>(unConnectedNodes));
 
         log.info("activate finish !");
     }
@@ -141,7 +138,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
                         !address.equals(ipv4.getHostAddress()) &&
                                 (ipv6 == null || !address.equals(ipv6.getHostAddress().split("%")[0]))
                 )
-                .forEach(address -> unConnectedNodes.offer(address));
+                .forEach(address -> unConnectedNodes.add(address));
         log.info("All unConnectedNodes is: {}", unConnectedNodes.toString());
     }
 
@@ -151,25 +148,53 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
         private final Logger log = LoggerFactory.getLogger(getClass());
 
         @Override
-        public boolean addConnectedNode(MaoProtocolNode node) {
-            connectingNodes.remove(node.getAddress());
-            connectedNodes.put(node.getAddress(), node);
+        public boolean addConnectedNode(MaoProtocolNode node) { // TODO: 2016/10/20 nodes lock
+            String nodeIp = node.getAddressStr();
+            if(!unConnectedNodes.remove(nodeIp)){
+                log.error("Can not find nodeIp: {} in unConnectedNodes !!!" +
+                        " Please troubleshoot !!!", nodeIp);
+            }
 
-            log.info("New Node is up: {}", node.getAddress());
+            connectedNodes.put(nodeIp, node);
+
+            log.info("New Node is up: {}", node.getAddressStr());
             return true;
         }
 
         @Override
-        public InetAddress getOneUnConnectedNode() {
-            InetAddress nodeIp = null;
-            if (!unConnectedNodes.isEmpty()) {
-                String nodeIpStr = unConnectedNodes.poll();
-                connectingNodes.add(nodeIpStr);
-                nodeIp = getIpFromString(nodeIpStr);
+        public boolean removeConnectedNode(MaoProtocolNode node){
+            String nodeIp = node.getAddressStr();
+            if(connectedNodes.remove(nodeIp) == null){
+                log.error("connectedNodes can't find {} when removing", nodeIp);
             }
-            log.info("poll a unConnected node: {}", nodeIp);
-            return nodeIp;
+            boolean ret = unConnectedNodes.add(nodeIp);
+            log.info("Node is down: {}, take back: {}", nodeIp, ret);
+            return ret;
         }
+
+//
+//        @Override
+//        public InetAddress connectAttemptOnce() { // TODO: 2016/10/20 nodes lock
+//            InetAddress nodeIp = null;
+//            if (!unConnectedNodes.isEmpty()) {
+//                String nodeIpStr = unConnectedNodes.poll();
+//                connectingNodes.add(nodeIpStr);
+//                nodeIp = IpUtil.strToInet(nodeIpStr);
+//            }
+//            log.info("poll a unConnected node: {}", nodeIp);
+//            return nodeIp;
+//        }
+//
+//        @Override
+//        public boolean connectAttemptFailed(InetAddress nodeIpInet){
+//            String nodeIp = inetToStr(nodeIpInet);
+//            if(!connectingNodes.remove(nodeIp)){
+//                log.error("connectingNodes can't find {} when removing", nodeIp);
+//            }
+//            boolean ret = unConnectedNodes.offer(nodeIp);
+//            log.info("Connect fail, node: {}, re-queuing: {}", nodeIp, ret);
+//            return ret;
+//        }
 
 
 

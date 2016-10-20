@@ -33,8 +33,13 @@ public final class IpUtil {
      * @return {@link InetAddress} representing the argument
      * @throws IllegalArgumentException if the argument is not a valid IP string literal
      */
-    public static InetAddress getIpFromString(String ipStr){
+    public static InetAddress strToInet(String ipStr){
         return InetAddresses.forString(ipStr);
+    }
+    public static String inetToStr(InetAddress ipAddr){
+        return isIpv4(ipAddr)
+                ? InetAddresses.toAddrString(ipAddr).replace("/", "")
+                : InetAddresses.toAddrString(ipAddr);
     }
 
     public static boolean isIpv4(InetAddress ip){

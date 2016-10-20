@@ -12,6 +12,7 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
  */
 public class MPEchoReplyVer03 implements MPEchoReply {
 
+    private static final int ECHO_REPLY_LENGTH = 0;
 
 
     private MPEchoReplyVer03(){
@@ -23,7 +24,6 @@ public class MPEchoReplyVer03 implements MPEchoReply {
         return READER;
     }
     public static class Reader implements MPMessageReader<MPEchoReply>{
-        private static final int ECHO_REPLY_LENGTH = 0;
         public MPEchoReply readFrom(ByteBuf msg) throws MPParseError{
 
 //            int dataLength =  msg.readInt();
@@ -31,7 +31,7 @@ public class MPEchoReplyVer03 implements MPEchoReply {
 //                throw new MPErrorDataLength(dataLength, ECHO_REPLY_LENGTH);
 //            }
 //            return new MPEchoReplyVer03();
-            return null;
+            return new MPEchoReplyVer03();
         }
     }
 
@@ -47,12 +47,12 @@ public class MPEchoReplyVer03 implements MPEchoReply {
 
         @Override
         public void writeVersion(ByteBuf out){
-//            out.writeByte(msg.getVersion().get());
+            out.writeByte(msg.getVersion().get());
         }
 
         @Override
         public void writeType(ByteBuf out){
-//            out.writeByte(msg.getType().get());
+            out.writeByte(msg.getType().get());
         }
 
         @Override
@@ -60,7 +60,7 @@ public class MPEchoReplyVer03 implements MPEchoReply {
 //            data = PooledByteBufAllocator.DEFAULT.heapBuffer();
 //            data.writeBytes(msg.getHashValue());
 //            return data.readableBytes();
-            return -1;
+            return ECHO_REPLY_LENGTH;
         }
 
         @Override
@@ -78,7 +78,7 @@ public class MPEchoReplyVer03 implements MPEchoReply {
         }
 
         public MPEchoReplyVer03 build() {
-            return null;
+            return new MPEchoReplyVer03();
         }
     }
 

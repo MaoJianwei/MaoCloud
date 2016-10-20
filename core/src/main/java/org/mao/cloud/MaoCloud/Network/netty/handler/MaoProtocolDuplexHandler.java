@@ -2,13 +2,15 @@ package org.mao.cloud.MaoCloud.Network.netty.handler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.ReadTimeoutException;
+import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
-import org.mao.cloud.MaoCloud.Network.impl.MaoProtocolNetworkControllerImpl;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.MPFactories;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPFactory;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoReply;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoRequest;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 import org.slf4j.Logger;
@@ -28,13 +30,16 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
     private final boolean isRoleClient;
 
-    private MaoProtocolNetworkControllerImpl controller;
+    private MaoProtocolNetworkController controller;
 
     private MaoProtocolNode maoProtocolNode;
     private MaoProtocolState state;
     private Channel channel;
 
-    public MaoProtocolDuplexHandler(MaoProtocolNetworkControllerImpl controller, boolean isRoleClient){
+    private MPVersion mpVersion;
+    private MPFactory mpFactory;
+
+    public MaoProtocolDuplexHandler(MaoProtocolNetworkController controller, boolean isRoleClient){
         this.controller = controller;
         this.isRoleClient = isRoleClient;
         state = MaoProtocolState.INIT;
@@ -58,10 +63,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         WAIT_HELLO{
             @Override
             void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
-
-                //TODO - below is hello world Test
-                ChannelHandler channelHandler = ctx.handler();
-                MaoProtocolDuplexHandler h = (MaoProtocolDuplexHandler) channelHandler;
+                MaoProtocolDuplexHandler h = ((MaoProtocolDuplexHandler)ctx.handler());
 
                 log.info("ready to process a MPHello, state:{} Type: {}, Version: {}, idHashValue: {}",
                         h.getState(),
@@ -70,14 +72,15 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                         mpHello.getHashValue());
 
 
-
                 if(!h.isRoleClient) {
                     log.info("My role is Server, ready to send hello as a reply.");
                     if (mpHello.getVersion().get() >= MPVersion.MP_03.get()) {
 
+                        h.mpVersion = MPVersion.MP_03;
+                        h.mpFactory = h.controller.getMapProtocolFactory03();
+
                         log.info("will generate a hello as a reply.");
-                        MPFactory factory = MPFactories.getFactory(MPVersion.MP_03);
-                        MPHello hello = factory.buildHello()
+                        MPHello hello = h.mpFactory.buildHello()
                                 .setNodeName("MaoTestA")
                                 .setNodePassword("123456789")
                                 .build();
@@ -94,7 +97,8 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
                 log.info("will get new MaoProtocolNode representation...");
                 h.maoProtocolNode = h.controller.getMaoProtocolNode(ctx.channel());
-                log.info("got a new MaoProtocolNode representation, {}", h.maoProtocolNode.getAddress());
+                log.info("got a new MaoProtocolNode representation, {}",
+                        h.maoProtocolNode.getAddressStr());
 
                 log.info("ready to announce maoProtocolNode connected...");
                 h.maoProtocolNode.announceConnected();
@@ -111,7 +115,6 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         ENDING,
         END;
 
-
         private void processMPMessage(ChannelHandlerContext ctx, MPMessage mpMessage){
 
             log.info("ready to process a MPMessage, state:{} Type: {}, Version: {}",
@@ -124,10 +127,10 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                     processHelloMessage(ctx, (MPHello) mpMessage);
                     break;
                 case ECHO_REQUEST:
-                    processEchoRequestMessage();
+                    processEchoRequestMessage(ctx, (MPEchoRequest) mpMessage);
                     break;
                 case ECHO_REPLY:
-                    processEchoReplyMessage();
+                    processEchoReplyMessage(ctx, (MPEchoReply) mpMessage);
                     break;
                 case GOODDAY:
                     processGoodDayMessage();
@@ -141,29 +144,70 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
         void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
             log.warn("go into default processHelloMessage()");
-        };
-        void processEchoRequestMessage(){
-            log.warn("go into default processEchoRequestMessage()");
+        }
+        void processEchoRequestMessage(ChannelHandlerContext ctx, MPEchoRequest mpEchoRequest){
+            MaoProtocolDuplexHandler h = ((MaoProtocolDuplexHandler)ctx.handler());
 
-            //TODO - send EchoReply
+            log.info("receive Echo Request, Type: {}, Version: {}",
+                    mpEchoRequest.getType(),
+                    mpEchoRequest.getVersion());
 
-            //get version
-            //MPVersion version;
-            //MPFactories.
+            log.info("echo Reply is building...");
+            MPEchoReply mpEchoReply = h.mpFactory.buildEchoReply().build();
 
-        };
-        void processEchoReplyMessage(){
-            log.warn("go into default processEchoReplyMessage()");
-        };
+            log.info("echo Reply is sending...");
+            ctx.writeAndFlush(mpEchoReply);
+            log.info("echo Reply has been sent");
+        }
+        void processEchoReplyMessage(ChannelHandlerContext ctx, MPEchoReply mpEchoReply){
+            log.info("receive Echo Reply, Type: {}, Version: {}",
+                    mpEchoReply.getType(),
+                    mpEchoReply.getVersion());
+        }
         void processGoodDayMessage(){
             log.warn("go into default processGoodDayMessage()");
         };
+
+
+
+
+        void sendHelloMessage(ChannelHandlerContext ctx){
+            MaoProtocolDuplexHandler h = ((MaoProtocolDuplexHandler)ctx.handler());
+
+            MPHello hello = h.controller.getMapProtocolFactory03()
+                    .buildHello()
+                    .setNodeName("MaoTestB")
+                    .setNodePassword("987654321")
+                    .build();
+
+            log.info("sending MPHello, Type:{}, Version:{}, idHashValue:{}",
+                    hello.getType(),
+                    hello.getVersion(),
+                    hello.getHashValue());
+            ctx.writeAndFlush(hello);
+            log.info("sent MPHello, Type:{}, Version:{}, idHashValue:{}",
+                    hello.getType(),
+                    hello.getVersion(),
+                    hello.getHashValue());
+        }
+
+        void sendEchoRequestMessage(ChannelHandlerContext ctx){
+
+            MaoProtocolDuplexHandler h = ((MaoProtocolDuplexHandler)ctx.handler());
+
+            log.info("echo Request is building...");
+            MPEchoRequest echoRequest = h.mpFactory.buildEchoRequest().build();
+
+            log.info("echo Request is sending...");
+            ctx.writeAndFlush(echoRequest);
+            log.info("echo Request has been sent");
+        }
     }
 
 
 
 
-
+    // --- channel functions ---
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -172,6 +216,10 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                 state,
                 channel.toString());
         setState(WAIT_HELLO);
+
+        if(isRoleClient) {
+            state.sendHelloMessage(ctx);
+        }
     }
 
     @Override
@@ -182,6 +230,12 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         setState(ENDING);
 
         //TODO - Release resource
+        maoProtocolNode.announceDisConnected();
+
+        // TODO: 2016/10/20 try to reconnect just while error occur.
+        if(isRoleClient){
+            controller.clientReportNodeDown(this.maoProtocolNode.getAddressInet());
+        }
 
         setState(END);
     }
@@ -201,19 +255,35 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
-        //IdleTimeout
-        //...
-        log.warn("go into userEventTriggered(), ChannelHandlerContext: {}, Object: {}",
-                ctx.channel().toString(),
-                evt.toString());
+
+        if(evt instanceof IdleStateEvent){
+            log.info("Idle, State: {}, Channel: {}, Object: {}",
+                    ((IdleStateEvent) evt).state(),
+                    ctx.channel().toString(),
+                    evt.toString());
+
+            state.sendEchoRequestMessage(ctx);
+        } else {
+            log.warn("UnHandled! go into userEventTriggered(), channel: {}, Event: {}",
+                    ctx.channel().toString(),
+                    evt.toString());
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         //MPParseError
         //...
-        log.warn("go into exceptionCaught(), ChannelHandlerContext: {}, Throwable: {}",
-                ctx.channel().toString(),
-                cause.getMessage());
+        if(cause instanceof ReadTimeoutException){
+            log.warn("Read Timeout! channel will be closing. channel: {}", ctx.channel().toString());
+
+            //channelInactive() will do release job.
+            //we can do more to cut off the link gracefully.
+            ctx.close();
+        } else {
+            log.error("UnHandled! go into exceptionCaught(), channel: {}, Throwable: {}",
+                    ctx.channel().toString(),
+                    cause.getMessage());
+        }
     }
 }
