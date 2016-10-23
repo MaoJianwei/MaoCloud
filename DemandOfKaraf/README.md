@@ -1,1 +1,0 @@
-this directory is deprecated for MaoCloud, just have a reference.
