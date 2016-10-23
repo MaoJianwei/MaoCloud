@@ -241,7 +241,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         public void operationComplete(ChannelFuture future) {
             if (!future.isSuccess()) {
                 log.warn("Exception while connecting {}, will re-connect in {} seconds",
-                        future.cause(), CLIENT_SCHEDULE_DELAY);
+                        future.cause().getMessage(), CLIENT_SCHEDULE_DELAY);
                 bossGroup.schedule(new ConnectTask(nodeAddr, controller),
                         CLIENT_SCHEDULE_DELAY, TimeUnit.SECONDS);
             }

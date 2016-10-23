@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import static org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDuplexHandler.MaoProtocolState.END;
 import static org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDuplexHandler.MaoProtocolState.ENDING;
 import static org.mao.cloud.MaoCloud.Network.netty.handler.MaoProtocolDuplexHandler.MaoProtocolState.WAIT_HELLO;
+import static org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion.MP_03;
 
 /**
  * Created by mao on 2016/9/17.
@@ -71,12 +72,17 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                         mpHello.getVersion(),
                         mpHello.getHashValue());
 
-
-                if(!h.isRoleClient) {
+                if(h.isRoleClient){
+                    log.info("My role is Client, will init myself...");
+                    if (mpHello.getVersion().get() >= MP_03.get()){
+                        h.mpVersion = MP_03;
+                        h.mpFactory = h.controller.getMapProtocolFactory03();
+                    }
+                } else {
                     log.info("My role is Server, ready to send hello as a reply.");
-                    if (mpHello.getVersion().get() >= MPVersion.MP_03.get()) {
+                    if (mpHello.getVersion().get() >= MP_03.get()) {
 
-                        h.mpVersion = MPVersion.MP_03;
+                        h.mpVersion = MP_03;
                         h.mpFactory = h.controller.getMapProtocolFactory03();
 
                         log.info("will generate a hello as a reply.");

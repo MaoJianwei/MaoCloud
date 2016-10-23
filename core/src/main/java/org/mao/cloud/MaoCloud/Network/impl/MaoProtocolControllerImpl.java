@@ -128,18 +128,13 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 
         configuredNodeSet.add("10.103.89.201");
         configuredNodeSet.add("10.103.89.247");
+
         configuredNodeSet.add("10.117.6.230");
         configuredNodeSet.add("10.117.6.235");
+
         configuredNodeSet.add("10.210.107.70");
         configuredNodeSet.add("10.210.107.74");
         configuredNodeSet.add("10.210.107.79");
-
-        configuredNodeSet.add("10.210.107.71");
-        configuredNodeSet.add("10.210.107.72");
-        configuredNodeSet.add("10.210.107.73");
-        configuredNodeSet.add("10.210.107.75");
-        configuredNodeSet.add("10.210.107.76");
-
     }
 
     // filter to exclude myself ip.
@@ -182,31 +177,6 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
             log.info("Node is down: {}, take back: {}", nodeIp, ret);
             return ret;
         }
-
-//
-//        @Override
-//        public InetAddress connectAttemptOnce() { // TODO: 2016/10/20 nodes lock
-//            InetAddress nodeAddr = null;
-//            if (!unConnectedNodes.isEmpty()) {
-//                String nodeIpStr = unConnectedNodes.poll();
-//                connectingNodes.add(nodeIpStr);
-//                nodeAddr = IpUtil.strToInet(nodeIpStr);
-//            }
-//            log.info("poll a unConnected node: {}", nodeAddr);
-//            return nodeAddr;
-//        }
-//
-//        @Override
-//        public boolean connectAttemptFailed(InetAddress nodeIpInet){
-//            String nodeAddr = inetToStr(nodeIpInet);
-//            if(!connectingNodes.remove(nodeAddr)){
-//                log.error("connectingNodes can't find {} when removing", nodeAddr);
-//            }
-//            boolean ret = unConnectedNodes.offer(nodeAddr);
-//            log.info("Connect fail, node: {}, re-queuing: {}", nodeAddr, ret);
-//            return ret;
-//        }
-
 
 
         //Todo - this is not the responsibility of Agent.
