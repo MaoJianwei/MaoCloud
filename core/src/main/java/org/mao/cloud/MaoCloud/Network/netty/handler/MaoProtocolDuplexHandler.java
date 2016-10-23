@@ -228,16 +228,19 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         log.info("go into channelInactive, state: {}", state);
 
         setState(ENDING);
-
         //TODO - Release resource
+
+        log.info("{} will announce disconnected, state: {}", maoProtocolNode.getAddressStr(), state);
         maoProtocolNode.announceDisConnected();
 
         // TODO: 2016/10/20 try to reconnect just while error occur.
         if(isRoleClient){
+            log.info("{} will report clientNodeDown, state: {}", maoProtocolNode.getAddressStr(), state);
             controller.clientReportNodeDown(this.maoProtocolNode.getAddressInet());
         }
 
         setState(END);
+        log.info("{} release over, good day! state: {}", maoProtocolNode.getAddressStr(), state);
     }
 
     @Override

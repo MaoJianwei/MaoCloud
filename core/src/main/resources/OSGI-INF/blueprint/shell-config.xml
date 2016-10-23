@@ -10,5 +10,8 @@
         <command>
             <action class="org.mao.cloud.MaoCloud.Network.cli.ListNetworkPeer"/>
         </command>
+        <command>
+            <action class="org.mao.cloud.MaoCloud.Network.cli.ListNetworkOfflineNodes"/>
+        </command>
     </command-bundle>
 </blueprint>

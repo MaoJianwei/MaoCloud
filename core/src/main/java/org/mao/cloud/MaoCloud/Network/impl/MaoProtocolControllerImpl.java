@@ -73,6 +73,12 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 
 
     // --- MaoProtocolControllerAdmin ---
+    @Override
+    public List<String> getAllUnConnectedNodes(){
+        return new ArrayList<>(unConnectedNodes);
+    }
+
+    @Override
     public List<MaoProtocolNode> getAllConnectedNodes(){
         return new ArrayList<>(connectedNodes.values());
     }
@@ -128,7 +134,12 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
         configuredNodeSet.add("10.210.107.74");
         configuredNodeSet.add("10.210.107.79");
 
-        configuredNodeSet.add("10.210.107.254");
+        configuredNodeSet.add("10.210.107.71");
+        configuredNodeSet.add("10.210.107.72");
+        configuredNodeSet.add("10.210.107.73");
+        configuredNodeSet.add("10.210.107.75");
+        configuredNodeSet.add("10.210.107.76");
+
     }
 
     // filter to exclude myself ip.
@@ -151,7 +162,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
         public boolean addConnectedNode(MaoProtocolNode node) { // TODO: 2016/10/20 nodes lock
             String nodeIp = node.getAddressStr();
             if(!unConnectedNodes.remove(nodeIp)){
-                log.error("Can not find nodeIp: {} in unConnectedNodes !!!" +
+                log.error("Can not find nodeAddr: {} in unConnectedNodes !!!" +
                         " Please troubleshoot !!!", nodeIp);
             }
 
@@ -175,24 +186,24 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 //
 //        @Override
 //        public InetAddress connectAttemptOnce() { // TODO: 2016/10/20 nodes lock
-//            InetAddress nodeIp = null;
+//            InetAddress nodeAddr = null;
 //            if (!unConnectedNodes.isEmpty()) {
 //                String nodeIpStr = unConnectedNodes.poll();
 //                connectingNodes.add(nodeIpStr);
-//                nodeIp = IpUtil.strToInet(nodeIpStr);
+//                nodeAddr = IpUtil.strToInet(nodeIpStr);
 //            }
-//            log.info("poll a unConnected node: {}", nodeIp);
-//            return nodeIp;
+//            log.info("poll a unConnected node: {}", nodeAddr);
+//            return nodeAddr;
 //        }
 //
 //        @Override
 //        public boolean connectAttemptFailed(InetAddress nodeIpInet){
-//            String nodeIp = inetToStr(nodeIpInet);
-//            if(!connectingNodes.remove(nodeIp)){
-//                log.error("connectingNodes can't find {} when removing", nodeIp);
+//            String nodeAddr = inetToStr(nodeIpInet);
+//            if(!connectingNodes.remove(nodeAddr)){
+//                log.error("connectingNodes can't find {} when removing", nodeAddr);
 //            }
-//            boolean ret = unConnectedNodes.offer(nodeIp);
-//            log.info("Connect fail, node: {}, re-queuing: {}", nodeIp, ret);
+//            boolean ret = unConnectedNodes.offer(nodeAddr);
+//            log.info("Connect fail, node: {}, re-queuing: {}", nodeAddr, ret);
 //            return ret;
 //        }
 

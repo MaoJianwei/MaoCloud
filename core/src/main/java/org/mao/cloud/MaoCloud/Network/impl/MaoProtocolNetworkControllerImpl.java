@@ -11,14 +11,13 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
-import org.mao.cloud.MaoCloud.Network.api.MaoProtocolController;
 import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
 import org.mao.cloud.MaoCloud.Network.netty.handler.*;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.MPFactories;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPFactory;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +41,16 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
     private static int TCP_BACKLOG_VALUE = 20;
     private static int SERVER_PORT = 6666; // TODO - modify
     private static int CLIENT_SCHEDULE_DELAY = 3; // seconds
+    private static int CLIENT_TIMEOUT_DELAY = 1000; // seconds
+
 
     private MaoProtocolAgent agent;
 
     private Channel serverChannel;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+//    private EventLoopGroup clientGroup;
+
 
 
     public MaoProtocolNetworkControllerImpl(MaoProtocolAgent agent) {
@@ -58,8 +61,10 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         // ----- init Netty Network -----
 
         log.info("init NioEventLoopGroup...");
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("MaoCloud-MP-boss"));
+        workerGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("MaoCloud-MP-worker"));
+//        clientGroup = new NioEventLoopGroup();
+
 
         for (String node : unconnectedNodes) {
             bossGroup.schedule(new ConnectTask(strToInet(node), this),
@@ -76,9 +81,10 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
+                .option(ChannelOption.SO_KEEPALIVE, false) // TODO - VERITY - ATTENTION !!!
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
-                .childHandler(new NetworkChannelInitializer(this, false));
+                .childHandler(new NetworkChannelInitializer(this, false, null));
 
         log.info("ServerBootstrap init ok");
 
@@ -136,59 +142,50 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
     }
 
 
+
     private class ConnectTask implements Runnable {
 
         private final Logger log = LoggerFactory.getLogger(getClass());
 
         MaoProtocolNetworkController controller;
         Bootstrap b;
-        InetAddress nodeIp;
+        InetAddress nodeAddr;
 
-        public ConnectTask(InetAddress nodeIp, MaoProtocolNetworkController controller) {
+        public ConnectTask(InetAddress nodeAddr, MaoProtocolNetworkController controller) {
 
-            this.nodeIp = nodeIp;
+            this.nodeAddr = nodeAddr;
             this.controller = controller;
 
             log.info("init Bootstrap...");
             b = new Bootstrap()
-                    .group(bossGroup)
+                    .group(workerGroup)
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT) // TODO - CHECK
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // TODO - VERITY - ATTENTION !!!
-                    .handler(new NetworkChannelInitializer(controller, true));
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CLIENT_TIMEOUT_DELAY)
+                    .option(ChannelOption.SO_KEEPALIVE, false) // TODO - VERITY - ATTENTION !!!
+                    .handler(new NetworkChannelInitializer(controller, true, nodeAddr));
             log.info("Bootstrap init ok");
         }
 
         @Override
         public void run() {
-
             log.info("New ConnectTask start...");
 
             if(!verifyConnectPrerequisite()){
                 return;
             }
 
-            log.info("connecting to {}...", inetToStr(nodeIp));
-            Channel ch;
-            try {
-                ch = b.connect(nodeIp, SERVER_PORT).sync().channel();
-            } catch (Exception e) {
-                log.warn("Exception while connecting {}, will re-connect in {} seconds",
-                        e.getMessage(), CLIENT_SCHEDULE_DELAY);
-                bossGroup.schedule(new ConnectTask(nodeIp, controller),
-                        CLIENT_SCHEDULE_DELAY, TimeUnit.SECONDS);
-                return;
-            }
-            log.info("client channel info Open:{}, Active:{}, RemoteAddress:{}",
-                    ch.isOpen(), ch.isActive(), ch.remoteAddress().toString());
+            log.info("connecting to {}...", inetToStr(nodeAddr));
+            b.connect(nodeAddr, SERVER_PORT).addListener(new CheckConnectResult(nodeAddr, controller));
+            log.info("CheckConnectResult for {} is added.", inetToStr(nodeAddr));
         }
 
         private boolean verifyConnectPrerequisite(){
-            if (isIpv4(nodeIp)) {
+            if (isIpv4(nodeAddr)) {
                 Inet4Address ipv4 = agent.getLocalIpv4();
                 if (ipv4 != null) {
-                    if (!verifyActiveConnectionRule(ipv4, nodeIp)) {
+                    if (!verifyActiveConnectionRule(ipv4, nodeAddr)) {
                         return false;
                     }
                 } else {
@@ -197,11 +194,12 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                 }
             } else {
                 //TODO - ipv6
-                log.warn("Node's IP is IPv6, ignore this node! {}", inetToStr(nodeIp));
+                log.warn("Node's IP is IPv6, ignore this node! {}", inetToStr(nodeAddr));
                 return false;
             }
             return true;
         }
+
         private boolean verifyActiveConnectionRule(InetAddress localIp, InetAddress remoteIp) {
             if (localIp.getClass().equals(remoteIp.getClass())) {
                 byte[] localIpBytes = localIp.getAddress();
@@ -228,20 +226,44 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
         }
     }
 
+    private class CheckConnectResult implements ChannelFutureListener {
+
+        private final Logger log = LoggerFactory.getLogger(getClass());
+        MaoProtocolNetworkController controller;
+        InetAddress nodeAddr;
+
+        public CheckConnectResult(InetAddress nodeAddr, MaoProtocolNetworkController controller){
+            this.nodeAddr = nodeAddr;
+            this.controller = controller;
+        }
+
+        @Override
+        public void operationComplete(ChannelFuture future) {
+            if (!future.isSuccess()) {
+                log.warn("Exception while connecting {}, will re-connect in {} seconds",
+                        future.cause(), CLIENT_SCHEDULE_DELAY);
+                bossGroup.schedule(new ConnectTask(nodeAddr, controller),
+                        CLIENT_SCHEDULE_DELAY, TimeUnit.SECONDS);
+            }
+        }
+    }
+
     private class NetworkChannelInitializer extends ChannelInitializer<SocketChannel> {
 
         private MaoProtocolNetworkController controller;
         private boolean isRoleClient;
+        private InetAddress nodeAddr;
 
-        public NetworkChannelInitializer(MaoProtocolNetworkController controller, boolean isRoleClient) {
+        public NetworkChannelInitializer(MaoProtocolNetworkController controller, boolean isRoleClient, InetAddress nodeAddr) {
             this.controller = controller;
             this.isRoleClient = isRoleClient;
+            this.nodeAddr = nodeAddr;
         }
 
         @Override
         public void initChannel(SocketChannel ch) {
             try {
-                log.info("initializing pipeline for client:{} channel ...", isRoleClient);
+                log.info("initializing pipeline for client:{} channel, {} ...", isRoleClient, nodeAddr);
 
                 ChannelPipeline p = ch.pipeline();
                 p.addLast(
@@ -255,7 +277,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
                         new ReadTimeoutHandler(10, TimeUnit.SECONDS),
                         new MaoProtocolDuplexHandler(controller, isRoleClient));
 
-                log.info("initialize pipeline for client channel: {} OK!", ch);
+                log.info("initialize pipeline for client: {} channel, {} OK!", isRoleClient, nodeAddr);
             } catch (Throwable t) {
                 t.printStackTrace();
                 log.error(t.getMessage());

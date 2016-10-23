@@ -9,5 +9,6 @@ import java.util.List;
  */
 public interface MaoProtocolControllerAdmin {
 
+    List<String> getAllUnConnectedNodes();
     List<MaoProtocolNode> getAllConnectedNodes();
 }
