@@ -5,11 +5,9 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
-import org.mao.cloud.MaoCloud.Network.api.MaoProtocolAgent;
-import org.mao.cloud.MaoCloud.Network.api.MaoProtocolController;
-import org.mao.cloud.MaoCloud.Network.api.MaoProtocolControllerAdmin;
-import org.mao.cloud.MaoCloud.Network.api.MaoProtocolNetworkController;
+import org.mao.cloud.MaoCloud.Network.api.*;
 import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 import org.mao.cloud.util.IpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +29,15 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 
     private static final Logger log = LoggerFactory.getLogger(MaoProtocolControllerImpl.class);
 
+    private Inet4Address ipv4 = INVALID_IPV4_ADDRESS;
+    @Deprecated //TODO - ipv6 compatible
+    private Inet6Address ipv6 = INVALID_IPV6_ADDRESS;
+
 
     private MaoProtocolAgent agent = new MaoProtocolNodeAgent();
     private MaoProtocolNetworkController networkController = new MaoProtocolNetworkControllerImpl(agent);
 
-    private Inet4Address ipv4 = INVALID_IPV4_ADDRESS;
-    @Deprecated //TODO - ipv6 compatible
-    private Inet6Address ipv6 = INVALID_IPV6_ADDRESS;
+    private Set<MaoProtocolListener> maoProtocolListeners = new ConcurrentSet<>();
 
     private ConcurrentSet<String> configuredNodeSet = new ConcurrentSet<>();
     private ConcurrentSet<String> unConnectedNodes = new ConcurrentSet<>();
@@ -71,6 +71,17 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
         log.info("deactivate OK !");
     }
 
+    // --- MaoProtocolController ---
+
+    @Override
+    public void addListener(MaoProtocolListener listener) {
+        maoProtocolListeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(MaoProtocolListener listener) {
+        maoProtocolListeners.remove(listener);
+    }
 
     // --- MaoProtocolControllerAdmin ---
     @Override
@@ -124,6 +135,8 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
     }
 
     private void getConfiguredNodeSet(){
+
+        // TODO: 2016/11/6 to be real
         configuredNodeSet.add("10.103.89.180"); //VM
 
         configuredNodeSet.add("10.103.89.201");
@@ -138,7 +151,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
     }
 
     // filter to exclude myself ip.
-    private void initUnconnectedNodes(){
+    private void initUnconnectedNodes() {
         configuredNodeSet.stream()
                 .filter(address ->
                         !address.equals(ipv4.getHostAddress()) &&
@@ -164,20 +177,34 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
             connectedNodes.put(nodeIp, node);
 
             log.info("New Node is up: {}", node.getAddressStr());
+
+            for (MaoProtocolListener l : maoProtocolListeners) {
+                l.nodeConnected(node);
+            }
             return true;
         }
 
         @Override
-        public boolean removeConnectedNode(MaoProtocolNode node){
+        public boolean removeConnectedNode(MaoProtocolNode node) {
             String nodeIp = node.getAddressStr();
             if(connectedNodes.remove(nodeIp) == null){
                 log.error("connectedNodes can't find {} when removing", nodeIp);
             }
             boolean ret = unConnectedNodes.add(nodeIp);
             log.info("Node is down: {}, take back: {}", nodeIp, ret);
+
+            for (MaoProtocolListener l : maoProtocolListeners) {
+                l.nodeUnconnected(node);
+            }
             return ret;
         }
 
+        @Override
+        public void processMessage(MPMessage msg) {
+            for (MaoProtocolListener l : maoProtocolListeners) {
+                l.processMessage(msg);
+            }
+        }
 
         //Todo - this is not the responsibility of Agent.
         @Override

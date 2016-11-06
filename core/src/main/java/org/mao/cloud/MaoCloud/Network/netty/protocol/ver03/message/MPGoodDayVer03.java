@@ -1,6 +1,7 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPGoodDay;
@@ -48,6 +49,8 @@ public class MPGoodDayVer03 implements MPGoodDay {
     }
     static class Writer implements MPGoodDay.Writer{
 
+        ByteBuf data;
+
         MPGoodDayVer03 msg;
         private Writer(MPGoodDayVer03 msg){
             this.msg = msg;
@@ -55,19 +58,20 @@ public class MPGoodDayVer03 implements MPGoodDay {
 
         @Override
         public void writeVersion(ByteBuf out){
-//            out.writeByte(msg.getVersion().get());
+            out.writeByte(msg.getVersion().get());
         }
 
         @Override
         public void writeType(ByteBuf out){
-//            out.writeByte(msg.getType().get());
+            out.writeByte(msg.getType().get());
         }
 
         @Override
         public int prepareData(){
-//            data = PooledByteBufAllocator.DEFAULT.heapBuffer();
-//            data.writeBytes(msg.getHashValue());
-//            return data.readableBytes();
+            data = PooledByteBufAllocator.DEFAULT.heapBuffer();
+            data.writeBytes(msg.getCause().getBytes("UTF-8"));
+            new String(new byte[10]);
+            return data.readableBytes();
             return -1;
         }
 

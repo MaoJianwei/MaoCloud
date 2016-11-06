@@ -1,18 +1,16 @@
 package org.mao.cloud.MaoCloud.Network.impl;
 
-import io.netty.channel.socket.SocketChannel;
 import io.netty.util.internal.ConcurrentSet;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Service;
-import org.mao.cloud.MaoCloud.Network.base.NodeLink;
-import org.mao.cloud.MaoCloud.Network.base.SubscriberRole;
-import org.mao.cloud.MaoCloud.Network.api.NetworkService;
-import org.mao.cloud.MaoCloud.Network.api.NetworkSubscriber;
+import org.apache.felix.scr.annotations.*;
+import org.mao.cloud.MaoCloud.Network.api.*;
+import org.mao.cloud.MaoCloud.Network.base.MaoProtocolNode;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
+import org.mao.cloud.MaoCloud.api.MaoCloudData;
 
-import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by mao on 2016/7/3.
@@ -23,59 +21,65 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class NetworkManager implements NetworkService {
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected MaoProtocolController maoProtocolController;
 
 
-    private ConcurrentHashMap clientMap = new ConcurrentHashMap<String, NodeLink>(); //KEY: NAME
-    private ConcurrentHashMap initClientMap = new ConcurrentHashMap<InetSocketAddress, SocketChannel>(); //KEY: InetSocketAddress
+    private ConcurrentMap<Integer, MaoProtocolNode> maoProtocolNodes = new ConcurrentHashMap();
+    private Set<MaoNetworkDataListener> maoNetworkDataListeners = new ConcurrentSet();
 
-    private ConcurrentHashMap<SubscriberRole, ConcurrentSet<NetworkSubscriber>> subscriberMap = new ConcurrentHashMap();
-
-    // -------------------------------
-
-
-
-
-
-
-    // -------------------------------
-
-
+    private InternalMPListener internalMPListener = new InternalMPListener();
 
     @Activate
     protected void activate(){
-
-        subscriberMap.put(SubscriberRole.Monitor, new ConcurrentSet<NetworkSubscriber>());
-        subscriberMap.put(SubscriberRole.Cluster, new ConcurrentSet<NetworkSubscriber>());
-        subscriberMap.put(SubscriberRole.Service, new ConcurrentSet<NetworkSubscriber>());
-
-
-
-
+        maoProtocolController.addListener(internalMPListener);
     }
-
 
     @Deactivate
     protected void deactivate(){
-
-
+        maoProtocolController.removeListener(internalMPListener);
     }
 
 
-    /**
-     *
-     * @param role
-     * @param subscriber
-     * @return {@code false} if the subscriber already exists in the set
-     */
-    public boolean subscribe(SubscriberRole role, NetworkSubscriber subscriber){
-        return subscriberMap.get(role).add(subscriber);
+
+    @Override
+    public void addDataListener(MaoNetworkDataListener dataListener) {
+        maoNetworkDataListeners.add(dataListener);
     }
-    public boolean unsubscribe(SubscriberRole role, NetworkSubscriber subscriber){
-        return subscriberMap.get(role).remove(subscriber);
+
+    @Override
+    public void removeDataListener(MaoNetworkDataListener dataListener) {
+        maoNetworkDataListeners.remove(dataListener);
     }
-    public boolean sendMessage(String nodeName, Object data){
-        return false;
+
+    @Override
+    public void sendMessage(List nodes, MaoCloudData mcData) {
+        // TODO: 2016/11/6
     }
 
 
+
+    private class InternalMPListener implements MaoProtocolListener {
+
+        @Override
+        public void nodeConnected(MaoProtocolNode node) {
+
+            Integer nodeId = Integer.valueOf(node.getAddressStr().replace(".",""));
+
+            maoProtocolNodes.put(nodeId, node);
+        }
+
+        @Override
+        public void nodeUnconnected(MaoProtocolNode node) {
+            // TODO: 2016/11/6
+        }
+
+        @Override
+        public void processMessage(MPMessage msg) {
+            // TODO: 2016/11/6 parse data to MaoCloudData
+            for (MaoNetworkDataListener l : maoNetworkDataListeners) {
+                // l.processData();
+            }
+        }
+    }
 }
