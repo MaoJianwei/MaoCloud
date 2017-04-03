@@ -58,7 +58,6 @@ public class NetworkManager implements NetworkService {
     }
 
 
-
     private class InternalMPListener implements MaoProtocolListener {
 
         @Override

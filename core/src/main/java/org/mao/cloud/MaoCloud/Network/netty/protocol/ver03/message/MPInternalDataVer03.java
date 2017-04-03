@@ -13,7 +13,7 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
 public class MPInternalDataVer03 implements MPInternalData {
 //    private static final int ECHO_REPLY_LENGTH = 0;
 
-    private int 
+    private int
 
     private MPInternalDataVer03(){
     }

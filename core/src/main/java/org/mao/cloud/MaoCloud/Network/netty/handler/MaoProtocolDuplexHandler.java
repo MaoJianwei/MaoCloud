@@ -28,12 +28,13 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MaoProtocolDuplexHandler.class);
 
-
-    private final boolean isRoleClient;
-
+    // protocol nodes' Controller
     private MaoProtocolNetworkController controller;
 
+    // my protocol node Representation
     private MaoProtocolNode maoProtocolNode;
+
+    private final boolean isRoleClient;
     private MaoProtocolState state;
     private Channel channel;
 
@@ -52,6 +53,7 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
     private void setState(MaoProtocolState newState){
         this.state = newState;
     }
+
     enum MaoProtocolState {
 
         /**
@@ -60,7 +62,6 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         INIT{
 
         },
-
         WAIT_HELLO{
             @Override
             void processHelloMessage(ChannelHandlerContext ctx, MPHello mpHello){
@@ -74,13 +75,13 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
 
                 if(h.isRoleClient){
                     log.info("My role is Client, will init myself...");
-                    if (mpHello.getVersion().get() >= MP_03.get()){
+                    if (mpHello.getVersion().get() == MP_03.get()){
                         h.mpVersion = MP_03;
                         h.mpFactory = h.controller.getMapProtocolFactory03();
                     }
                 } else {
                     log.info("My role is Server, ready to send hello as a reply.");
-                    if (mpHello.getVersion().get() >= MP_03.get()) {
+                    if (mpHello.getVersion().get() == MP_03.get()) {
 
                         h.mpVersion = MP_03;
                         h.mpFactory = h.controller.getMapProtocolFactory03();
@@ -254,8 +255,8 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
         log.info("channel read, object class: {}", msg.getClass());
         MPMessage mpMessage = (MPMessage) msg;
         log.info("channel read, MPMessage Type:{}, Version:{}",
-                ((MPMessage) msg).getType(),
-                ((MPMessage) msg).getVersion());
+                mpMessage.getType(),
+                mpMessage.getVersion());
 
         log.info("Will process MPMessage, state: {}", state);
 

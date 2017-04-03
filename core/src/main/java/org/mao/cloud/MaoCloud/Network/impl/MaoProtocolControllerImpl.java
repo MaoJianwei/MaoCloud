@@ -41,7 +41,7 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
 
     private ConcurrentSet<String> configuredNodeSet = new ConcurrentSet<>();
     private ConcurrentSet<String> unConnectedNodes = new ConcurrentSet<>();
-//    private ConcurrentSet<String> connectingNodes = new ConcurrentSet<>();
+    // Deprecated - private ConcurrentSet<String> connectingNodes = new ConcurrentSet<>();
     private ConcurrentMap<String, MaoProtocolNode> connectedNodes = new ConcurrentHashMap<>();
 
     @Activate
