@@ -1,6 +1,7 @@
 package org.mao.cloud.util;
 
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 /**
@@ -8,10 +9,14 @@ import java.nio.charset.Charset;
  */
 public final class StringUtil {
 
-    public static byte[] strGetBytes(String str){
-        if (Charset.defaultCharset.displayName("UTF-8")) {
-            return str.getBytes()
-        }
+    /**
+     * Get bytes of string in UTF-8 format.
+     *
+     * @param str
+     * @return
+     * @throws UnsupportedEncodingException will not be thrown forever
+     */
+    public static byte[] strGetBytes(String str) throws UnsupportedEncodingException {
+        return Charset.isSupported("UTF-8") ? str.getBytes("UTF-8") : new byte[1];
     }
-
 }

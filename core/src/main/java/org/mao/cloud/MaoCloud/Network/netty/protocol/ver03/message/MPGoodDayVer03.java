@@ -2,22 +2,26 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPGoodDay;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength;
+
+import java.io.UnsupportedEncodingException;
+
+import static org.mao.cloud.util.ConstUtil.STR_NULL;
 
 /**
  * Created by mao on 2016/9/17.
  */
 public class MPGoodDayVer03 implements MPGoodDay {
 
-
     private String cause;
     public String getCause(){
         return cause;
     }
+
     private MPGoodDayVer03(String cause){
         this.cause = cause;
     }
@@ -26,21 +30,20 @@ public class MPGoodDayVer03 implements MPGoodDay {
     public static Reader reader(){
         return READER;
     }
-    public static class Reader implements MPMessageReader<MPGoodDay>{
+    public static class Reader implements MPGoodDay.Reader {
         public MPGoodDay readFrom(ByteBuf msg) throws MPParseError {
 
-//            int dataLength = msg.readInt();
-//            String causeStr;
-//            if(dataLength > 0){
-//                byte [] cause = new byte [dataLength];
-//                msg.readBytes(cause);
-//                causeStr = new String(cause);
-//            }else{
-//                causeStr = "";
-//            }
-//
-//            return new MPGoodDayVer03(causeStr);
-            return null;
+            byte [] cause = null;
+            int dataLength = msg.readInt();
+
+            if(dataLength < 0){
+                throw new MPErrorDataLength(dataLength, 0);
+            } else if (dataLength > 0) {
+                cause = new byte [dataLength];
+                msg.readBytes(cause);
+            }
+
+            return cause == null ? new MPGoodDayVer03(STR_NULL) : new MPGoodDayVer03(new String(cause));
         }
     }
 
@@ -49,35 +52,41 @@ public class MPGoodDayVer03 implements MPGoodDay {
     }
     static class Writer implements MPGoodDay.Writer{
 
+        MPGoodDayVer03 msg;
         ByteBuf data;
 
-        MPGoodDayVer03 msg;
         private Writer(MPGoodDayVer03 msg){
             this.msg = msg;
         }
 
         @Override
-        public void writeVersion(ByteBuf out){
+        public void writeVersionTo(ByteBuf out){
             out.writeByte(msg.getVersion().get());
         }
 
         @Override
-        public void writeType(ByteBuf out){
+        public void writeTypeTo(ByteBuf out){
             out.writeByte(msg.getType().get());
         }
 
         @Override
         public int prepareData(){
             data = PooledByteBufAllocator.DEFAULT.heapBuffer();
-            data.writeBytes(msg.getCause().getBytes("UTF-8"));
-            new String(new byte[10]);
-            return data.readableBytes();
-            return -1;
+            try {
+                byte [] msgByte = msg.getCause().getBytes("UTF-8");
+                data.writeBytes(msgByte);
+                return data.readableBytes();
+            } catch (UnsupportedEncodingException e) {
+                // TODO - design more efficient mechanism to fit EXCEPTION
+                return 0;
+            }
         }
 
         @Override
-        public void writeData(ByteBuf out){
-//            out.writeBytes(data);
+        public void writeDataTo(ByteBuf out){
+            out.writeBytes(data);
+            data.release();
+            data = null;
         }
     }
 
@@ -86,11 +95,19 @@ public class MPGoodDayVer03 implements MPGoodDay {
     }
     public static class Builder implements MPGoodDay.Builder {
 
+        String cause;
+
         public Builder(){
+            cause = STR_NULL;
+        }
+
+        public Builder setCause(String cause) {
+            this.cause = cause;
+            return this;
         }
 
         public MPGoodDayVer03 build() {
-            return null;
+            return new MPGoodDayVer03(cause);
         }
     }
 

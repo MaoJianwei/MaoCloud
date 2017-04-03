@@ -9,7 +9,6 @@ public interface MPHello extends MPMessage {
 
     byte [] getHashValue();
 
-    //    Reader reader();
     interface Reader extends MPMessage.Reader<MPHello>{
     }
 

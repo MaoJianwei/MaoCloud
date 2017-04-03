@@ -1,7 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPInternalData;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
@@ -46,12 +45,12 @@ public class MPInternalDataVer03 implements MPInternalData {
         }
 
         @Override
-        public void writeVersion(ByteBuf out){
+        public void writeVersionTo(ByteBuf out){
             out.writeByte(msg.getVersion().get());
         }
 
         @Override
-        public void writeType(ByteBuf out){
+        public void writeTypeTo(ByteBuf out){
             out.writeByte(msg.getType().get());
         }
 
@@ -64,7 +63,7 @@ public class MPInternalDataVer03 implements MPInternalData {
         }
 
         @Override
-        public void writeData(ByteBuf out){
+        public void writeDataTo(ByteBuf out){
 //            out.writeBytes(data);
         }
     }

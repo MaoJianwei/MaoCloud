@@ -7,7 +7,6 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
  */
 public interface MPGoodDay extends MPMessage {
 
-    //    Reader reader();
     interface Reader extends MPMessage.Reader<MPGoodDay>{
     }
 

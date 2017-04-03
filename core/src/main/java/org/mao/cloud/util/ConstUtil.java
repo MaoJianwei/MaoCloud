@@ -5,7 +5,6 @@ package org.mao.cloud.util;
  */
 public final class ConstUtil {
 
-
     /**
      * please just use EOL in Debug, Warn and Error log level :)
      *
@@ -13,4 +12,9 @@ public final class ConstUtil {
      * for decrease dependency.
      */
     public static final String EOL = "%n";
+
+    /**
+     * Replacement of null string \"\"
+     */
+    public static final String STR_NULL = "";
 }

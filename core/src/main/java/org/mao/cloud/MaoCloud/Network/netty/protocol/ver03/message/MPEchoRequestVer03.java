@@ -1,7 +1,6 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoRequest;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
@@ -14,23 +13,16 @@ public class MPEchoRequestVer03 implements MPEchoRequest {
 
     private static final int ECHO_REQUEST_LENGTH = 0;
 
-
     private MPEchoRequestVer03(){
+        ;
     }
-
 
     private static final Reader READER = new Reader();
     public static Reader reader(){
         return READER;
     }
-    public static class Reader implements MPMessageReader<MPEchoRequest>{
+    public static class Reader implements MPEchoRequest.Reader{
         public MPEchoRequest readFrom(ByteBuf msg) throws MPParseError{
-
-//            int dataLength =  msg.readInt();
-//            if(dataLength != ECHO_REQUEST_LENGTH){
-//                throw new MPErrorDataLength(dataLength, ECHO_REQUEST_LENGTH);
-//            }
-//            return new MPEchoRequestVer03();
             return new MPEchoRequestVer03();
         }
     }
@@ -46,26 +38,23 @@ public class MPEchoRequestVer03 implements MPEchoRequest {
         }
 
         @Override
-        public void writeVersion(ByteBuf out){
+        public void writeVersionTo(ByteBuf out){
             out.writeByte(msg.getVersion().get());
         }
 
         @Override
-        public void writeType(ByteBuf out){
+        public void writeTypeTo(ByteBuf out){
             out.writeByte(msg.getType().get());
         }
 
         @Override
         public int prepareData(){
-//            data = PooledByteBufAllocator.DEFAULT.heapBuffer();
-//            data.writeBytes(msg.getHashValue());
-//            return data.readableBytes();
             return ECHO_REQUEST_LENGTH;
         }
 
         @Override
-        public void writeData(ByteBuf out){
-//            out.writeBytes(data);
+        public void writeDataTo(ByteBuf out){
+            ;
         }
     }
 

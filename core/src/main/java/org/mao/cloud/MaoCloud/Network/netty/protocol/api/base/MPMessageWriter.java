@@ -6,14 +6,14 @@ import io.netty.buffer.ByteBuf;
  * Created by mao on 2016/10/6.
  */
 public interface MPMessageWriter {
-    void writeVersion(ByteBuf out);
-    void writeType(ByteBuf out);
+    void writeVersionTo(ByteBuf out);
+    void writeTypeTo(ByteBuf out);
 
     /**
-     * Must be called before invoking writeData.
+     * Must be called before invoking writeDataTo.
      *
      * @return data length without the one of CheckSum
      */
     int prepareData();
-    void writeData(ByteBuf out);
+    void writeDataTo(ByteBuf out);
 }

@@ -20,12 +20,9 @@ public class MPHelloVer03 implements MPHello {
     public byte [] getHashValue(){
         return idHashValue;
     }
-
-
     private MPHelloVer03(byte [] idHashValue){
         this.idHashValue = idHashValue;
     }
-
 
     //TODO - should be updated - considered CheckSum
     private static final Reader READER = new Reader();
@@ -50,7 +47,6 @@ public class MPHelloVer03 implements MPHello {
         }
     }
 
-
     public Writer writer(){
         return new Writer(this);
     }
@@ -64,12 +60,12 @@ public class MPHelloVer03 implements MPHello {
         }
 
         @Override
-        public void writeVersion(ByteBuf out){
+        public void writeVersionTo(ByteBuf out){
             out.writeByte(msg.getVersion().get());
         }
 
         @Override
-        public void writeType(ByteBuf out){
+        public void writeTypeTo(ByteBuf out){
             out.writeByte(msg.getType().get());
         }
 
@@ -81,8 +77,10 @@ public class MPHelloVer03 implements MPHello {
         }
 
         @Override
-        public void writeData(ByteBuf out){
+        public void writeDataTo(ByteBuf out){
             out.writeBytes(data);
+            data.release();
+            data = null;
         }
     }
 

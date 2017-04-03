@@ -12,7 +12,6 @@ public interface MPFactory {
     MPMessageReader<MPMessage> getReader();
 
 
-
     MPHello.Builder buildHello();
     MPEchoRequest.Builder buildEchoRequest();
     MPEchoReply.Builder buildEchoReply();

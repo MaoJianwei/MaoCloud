@@ -34,11 +34,11 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
 
         ByteBuf tmp = PooledByteBufAllocator.DEFAULT.heapBuffer();
         log.info("tmp heap buffer generated: {}", tmp.toString());
-        final MPMessageWriter WRITER = msg.writer();
+        final MPMessageWriter msgWriter = msg.writer();
 
         tmp.writeBytes(PROTOCOL_PREFIX);
-        WRITER.writeVersion(tmp);
-        WRITER.writeType(tmp);
+        msgWriter.writeVersionTo(tmp);
+        msgWriter.writeTypeTo(tmp);
 
         final boolean checkSumExist = false; //TODO - Get and Write CheckSum_Exist
         log.info("got checkSumExist: {}", checkSumExist);
@@ -47,7 +47,7 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
         tmp.writeByte(0);
         tmp.writeByte(0);
 
-        int dataLength = WRITER.prepareData();
+        int dataLength = msgWriter.prepareData();
         log.info("initial Datalength: {}", dataLength);
         if(checkSumExist){
             dataLength += CHECKSUM_LENGTH;
@@ -55,7 +55,7 @@ public class MaoProtocolEncoder extends MessageToByteEncoder<MPMessage> {
         log.info("final Datalength: {}", dataLength);
         tmp.writeInt(dataLength);
 
-        WRITER.writeData(tmp);
+        msgWriter.writeDataTo(tmp);
 
 
         if(checkSumExist){

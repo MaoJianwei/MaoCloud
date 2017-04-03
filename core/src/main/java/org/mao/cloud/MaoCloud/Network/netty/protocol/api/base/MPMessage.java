@@ -11,15 +11,17 @@ public interface MPMessage{
     MPVersion getVersion();
     MPMessageType getType();
 
-
-    //    Reader reader();
+    /**
+     * Deals from the DataLength segment of protocol.
+     *
+     * @param <T>
+     */
     interface Reader<T> extends MPMessageReader<T>{
     }
 
     Writer writer();
     interface Writer extends MPMessageWriter{
     }
-
 
     Builder builder();
     interface Builder{
