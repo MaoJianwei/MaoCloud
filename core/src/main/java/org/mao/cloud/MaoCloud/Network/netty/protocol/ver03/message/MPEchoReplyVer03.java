@@ -75,7 +75,7 @@ public class MPEchoReplyVer03 implements MPEchoReply {
         return MPVersion.MP_03;
     }
     public MPMessageType getType(){
-        return MPMessageType.ECHO_REPLY;
+        return MPMessageType.LINK_ECHO_REPLY;
     }
 
 }

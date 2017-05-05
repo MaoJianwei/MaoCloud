@@ -133,6 +133,6 @@ public class MPHelloVer03 implements MPHello {
         return MPVersion.MP_03;
     }
     public MPMessageType getType(){
-        return MPMessageType.HELLO;
+        return MPMessageType.LINK_HELLO;
     }
 }

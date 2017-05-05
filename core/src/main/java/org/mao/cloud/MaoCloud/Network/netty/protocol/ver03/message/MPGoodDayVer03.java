@@ -116,6 +116,6 @@ public class MPGoodDayVer03 implements MPGoodDay {
         return MPVersion.MP_03;
     }
     public MPMessageType getType(){
-        return MPMessageType.GOODDAY;
+        return MPMessageType.LINK_GOODDAY;
     }
 }

@@ -76,6 +76,6 @@ public class MPEchoRequestVer03 implements MPEchoRequest {
         return MPVersion.MP_03;
     }
     public MPMessageType getType(){
-        return MPMessageType.ECHO_REQUEST;
+        return MPMessageType.LINK_ECHO_REQUEST;
     }
 }

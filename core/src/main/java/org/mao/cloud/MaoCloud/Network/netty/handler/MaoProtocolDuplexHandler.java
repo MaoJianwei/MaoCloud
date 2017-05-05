@@ -130,16 +130,16 @@ public class MaoProtocolDuplexHandler extends ChannelDuplexHandler {
                     mpMessage.getVersion());
 
             switch(mpMessage.getType()){
-                case HELLO:
+                case LINK_HELLO:
                     processHelloMessage(ctx, (MPHello) mpMessage);
                     break;
-                case ECHO_REQUEST:
+                case LINK_ECHO_REQUEST:
                     processEchoRequestMessage(ctx, (MPEchoRequest) mpMessage);
                     break;
-                case ECHO_REPLY:
+                case LINK_ECHO_REPLY:
                     processEchoReplyMessage(ctx, (MPEchoReply) mpMessage);
                     break;
-                case GOODDAY:
+                case LINK_GOODDAY:
                     processGoodDayMessage();
                     break;
                 default:

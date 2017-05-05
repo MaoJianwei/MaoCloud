@@ -5,13 +5,13 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.base;
  */
 public enum MPMessageType {
 
-    HELLO(0x00),
-    GOODDAY(0x01),
-    ECHO_REQUEST(0x02),
-    ECHO_REPLY(0x03),
+    LINK_HELLO(0x00),
+    LINK_GOODDAY(0x01),
+    LINK_ECHO_REQUEST(0x02),
+    LINK_ECHO_REPLY(0x03),
 
     // todo - need more identification
-    INTERNAL_DATA(0x30);
+    CLUSTER_INTERNAL_DATA(0x30);
 
     private final int wireType;
 

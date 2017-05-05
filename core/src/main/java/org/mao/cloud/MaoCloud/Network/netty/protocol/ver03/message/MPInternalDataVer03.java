@@ -87,7 +87,7 @@ public class MPInternalDataVer03 implements MPInternalData {
         return MPVersion.MP_03;
     }
     public MPMessageType getType(){
-        return MPMessageType.INTERNAL_DATA;
+        return MPMessageType.CLUSTER_INTERNAL_DATA;
     }
 
 }
