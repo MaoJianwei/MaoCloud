@@ -3,6 +3,7 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.api.base;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoReply;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoRequest;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPStationInfo;
 
 /**
  * Created by mao on 2016/9/16.
@@ -15,4 +16,8 @@ public interface MPFactory {
     MPHello.Builder buildHello();
     MPEchoRequest.Builder buildEchoRequest();
     MPEchoReply.Builder buildEchoReply();
+
+
+
+    MPStationInfo.Builder buildStationInfo();
 }

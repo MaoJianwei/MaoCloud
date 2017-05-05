@@ -5,10 +5,7 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorType;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPEchoReplyVer03;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPEchoRequestVer03;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPGoodDayVer03;
-import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPHelloVer03;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.*;
 
 /**
  * Created by mao on 2016/9/18.
@@ -49,6 +46,12 @@ public abstract class MPMessageVer03 {
                             return MPEchoReplyVer03.reader().readFrom(msg);
                         default:
                             throw new MPErrorType(2, type>>>4, type&0x0f, false);
+                    }
+                    // here, break is unreachable.
+                case 5:
+                    switch(type & 0x0f){
+                        case 0:
+                            return MPStationInfoVer03.reader().readFrom(msg);
                     }
                 default:
                     throw new MPErrorType(2, type>>>4, type&0x0f, true);

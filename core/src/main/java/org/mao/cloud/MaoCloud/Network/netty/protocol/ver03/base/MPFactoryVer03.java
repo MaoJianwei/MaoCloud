@@ -6,9 +6,11 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoReply;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPEchoRequest;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPHello;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPStationInfo;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPEchoReplyVer03;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPEchoRequestVer03;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPHelloVer03;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message.MPStationInfoVer03;
 
 /**
  * Created by mao on 2016/9/17.
@@ -35,5 +37,10 @@ public class MPFactoryVer03 implements MPFactory {
     @Override
     public MPEchoReply.Builder buildEchoReply(){
         return new MPEchoReplyVer03.Builder();
+    }
+
+    @Override
+    public MPStationInfo.Builder buildStationInfo() {
+        return new MPStationInfoVer03.Builder();
     }
 }
