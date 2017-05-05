@@ -11,7 +11,9 @@ public enum MPMessageType {
     ECHO_REPLY(0x03),
 
     // todo - need more identification
-    INTERNAL_DATA(0x30);
+    INTERNAL_DATA(0x30),
+
+    NOTIFICATION_STATION_INFO(0x50);
 
     private final int wireType;
 
