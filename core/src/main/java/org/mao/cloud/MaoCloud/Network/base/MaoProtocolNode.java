@@ -34,9 +34,6 @@ public class MaoProtocolNode {
     }
 
 
-
-
-
     public boolean announceConnected(){
         return agent.addConnectedNode(this);
     }

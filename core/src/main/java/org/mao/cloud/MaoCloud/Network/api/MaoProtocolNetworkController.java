@@ -17,7 +17,7 @@ public interface MaoProtocolNetworkController {
 
     void clientReportNodeDown(InetAddress nodeAddr);
 
-    MaoProtocolNode getMaoProtocolNode(Channel channel);
+    MaoProtocolNode createMaoProtocolNode(Channel channel);
 
     MPFactory getMapProtocolFactory03();
 }

@@ -1,6 +1,7 @@
 package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessageReader;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPInternalData;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;

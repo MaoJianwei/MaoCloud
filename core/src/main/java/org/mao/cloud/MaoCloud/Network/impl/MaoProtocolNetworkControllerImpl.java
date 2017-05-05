@@ -41,7 +41,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
     private static int TCP_BACKLOG_VALUE = 20;
     private static int SERVER_PORT = 6666; // TODO - modify
     private static int CLIENT_SCHEDULE_DELAY = 3; // seconds
-    private static int CLIENT_TIMEOUT_DELAY = 1000; // seconds
+    private static int CLIENT_TIMEOUT_DELAY = 1000; // milliseconds
 
 
     private MaoProtocolAgent agent;
@@ -132,7 +132,7 @@ public class MaoProtocolNetworkControllerImpl implements MaoProtocolNetworkContr
     }
 
     @Override
-    public MaoProtocolNode getMaoProtocolNode(Channel channel) {
+    public MaoProtocolNode createMaoProtocolNode(Channel channel) {
         return new MaoProtocolNode(channel, agent);
     }
 
