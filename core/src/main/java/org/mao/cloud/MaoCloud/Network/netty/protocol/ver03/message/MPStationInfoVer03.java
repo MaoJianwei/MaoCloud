@@ -2,21 +2,29 @@ package org.mao.cloud.MaoCloud.Network.netty.protocol.ver03.message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.api.message.MPStationInfo;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPMessageType;
 import org.mao.cloud.MaoCloud.Network.netty.protocol.base.MPVersion;
+import org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength;
+import org.mao.cloud.util.StringUtil;
+
+import static org.mao.cloud.MaoCloud.Network.netty.protocol.exception.MPErrorDataLength.POSITIVE;
+import static org.mao.cloud.util.ConstUtil.STR_NULL;
+import static org.mao.cloud.util.StringUtil.bytesGetStr;
 
 /**
  * Created by mao on 2017/5/5.
  */
 public class MPStationInfoVer03 implements MPStationInfo {
 
-//    private byte [] idHashValue;
-//    public byte [] getHashValue(){
-//        return idHashValue;
-//    }
-    private MPStationInfoVer03(){
+    private String info;
+    public String getStationInfo(){
+        return info;
+    }
 
+    private MPStationInfoVer03(String info){
+        this.info = info;
     }
 
     //TODO - should be updated - considered CheckSum
@@ -26,19 +34,18 @@ public class MPStationInfoVer03 implements MPStationInfo {
     }
     public static class Reader implements MPStationInfo.Reader{
 
-//        private static final int SHA256_LENGTH = 32; //bytes
-
         @Override
-        public MPStationInfo readFrom(ByteBuf msg) throws MPParseError{
+        public MPStationInfo readFrom(ByteBuf msg) throws MPParseError {
 
-//            int dataLength = msg.readInt();
-//            if(dataLength < SHA256_LENGTH){
-//                throw new MPErrorDataLength(dataLength, SHA256_LENGTH);
-//            }
-//
-//            byte [] idHashValue = new byte [SHA256_LENGTH];
-//            msg.readBytes(idHashValue);
-            return new MPStationInfoVer03();
+            int dataLength = msg.readInt();
+            if(dataLength < 0){
+                throw new MPErrorDataLength(dataLength, POSITIVE);
+            }
+
+            byte [] stationInfo = new byte [dataLength];
+            msg.readBytes(stationInfo);
+
+            return new MPStationInfoVer03(bytesGetStr(stationInfo));
         }
     }
 
@@ -48,6 +55,7 @@ public class MPStationInfoVer03 implements MPStationInfo {
     static class Writer implements MPStationInfo.Writer{
 
         MPStationInfoVer03 msg;
+        byte [] dataBytes;
         ByteBuf data;
 
         private Writer(MPStationInfoVer03 msg){
@@ -66,8 +74,10 @@ public class MPStationInfoVer03 implements MPStationInfo {
 
         @Override
         public int prepareData(){
+            byte [] infoBytes = StringUtil.strGetBytes(msg.getStationInfo());
+
             data = PooledByteBufAllocator.DEFAULT.heapBuffer();
-//            data.writeBytes(msg.getHashValue());
+            data.writeBytes(infoBytes);
             return data.readableBytes();
         }
 
@@ -79,48 +89,25 @@ public class MPStationInfoVer03 implements MPStationInfo {
         }
     }
 
-    public Builder builder(){
+    public Builder builder() {
         return new Builder();
     }
     public static class Builder implements MPStationInfo.Builder {
 
-//        private String nodeName;
-//        private String nodePassword;
+        private String info;
 
         public Builder(){
-//            nodeName = null;
-//            nodePassword = null;
+            this.info = STR_NULL;
         }
 
-//        public Builder setNodeName(String name){
-//            nodeName = name;
-//            return this;
-//        }
-//
-//        public Builder setNodePassword(String password){
-//            nodePassword = password;
-//            return this;
-//        }
+        public Builder setStationInfo(String info){
+            this.info = info;
+            return this;
+        }
 
         public MPStationInfoVer03 build() {
-//            if (nodeName==null) {
-//                throw new NullPointerException("Null Pointer: nodeName");
-//            } else if (nodePassword == null) {
-//                throw new NullPointerException("Null Pointer: nodePassword");
-//            }
-
-            try {
-                return new MPStationInfoVer03();
-            } catch(Exception e) {
-                return null;
-            }
+            return new MPStationInfoVer03(info);
         }
-
-//        private byte[] namePasswordHash() throws NoSuchAlgorithmException{
-//            return MessageDigest
-//                    .getInstance("SHA-256")
-//                    .digest((nodeName + nodePassword).getBytes());
-//        }
     }
 
 
