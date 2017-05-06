@@ -7,7 +7,10 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPParseError;
  */
 public class MPErrorDataLength extends MPParseError {
 
-    public MPErrorDataLength(int wrongLen, int rightLen){
-        super("Error data length:" + wrongLen + " should be:" + rightLen);
+    public static final int POSITIVE = Integer.MAX_VALUE;
+
+    public MPErrorDataLength(int wrongLen, int rightLen) {
+        super("Error data length " + wrongLen + " should be " +
+                (rightLen == POSITIVE ? "POSITIVE value" : rightLen));
     }
 }

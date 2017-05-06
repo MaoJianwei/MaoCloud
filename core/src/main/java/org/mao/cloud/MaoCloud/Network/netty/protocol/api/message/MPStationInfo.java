@@ -6,7 +6,8 @@ import org.mao.cloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
  * Created by mao on 2017/5/5.
  */
 public interface MPStationInfo extends MPMessage {
-//    byte [] getHashValue();
+
+    String getStationInfo();
 
     interface Reader extends MPMessage.Reader<MPStationInfo>{
     }
