@@ -137,17 +137,17 @@ public class MaoProtocolControllerImpl implements MaoProtocolController, MaoProt
     private void getConfiguredNodeSet(){
 
         // TODO: 2016/11/6 to be real
-        configuredNodeSet.add("10.103.89.180"); //VM
+//        configuredNodeSet.add("pi-sky.maojianwei.com");
 
-        configuredNodeSet.add("10.103.89.201");
-        configuredNodeSet.add("10.103.89.247");
+//        configuredNodeSet.add("cloud-server1.maojianwei.com");
+//        configuredNodeSet.add("cloud-server2.maojianwei.com");
 
-        configuredNodeSet.add("10.117.6.230");
-        configuredNodeSet.add("10.117.6.235");
+//        configuredNodeSet.add("10.117.6.230");
+//        configuredNodeSet.add("10.117.6.235");
 
-        configuredNodeSet.add("10.210.107.70");
-        configuredNodeSet.add("10.210.107.74");
-        configuredNodeSet.add("10.210.107.79");
+        configuredNodeSet.add("10.103.73.55");
+        configuredNodeSet.add("10.103.71.54");
+        configuredNodeSet.add("10.103.71.37");
     }
 
     // filter to exclude myself ip.
