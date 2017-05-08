@@ -23,6 +23,7 @@ cp -vrf ./core/target/mao-cloud-core-*.jar ./deploy/target/apache-karaf-3.0.8/de
 echo -e "\n---------- Packaging Mao Cloud Platform ... ----------\n"
 cd ./deploy/target/
 tar -zcf ./MaoCloud.tar.gz apache-karaf-3.0.8/
+mv ./MaoCloud.tar.gz ../../
 
 echo -e "\n---------- Clear temp ... ----------\n"
 rm -rf ./apache-karaf-3.0.8/
