@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mao</groupId>
+        <groupId>com.maojianwei.MaoCloud</groupId>
         <artifactId>mao-cloud</artifactId>
         <version>0.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -24,7 +24,7 @@
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <url>http://maojianwei.github.io/</url>
+    <url>http://maocloud.maojianwei.com/</url>
     <description>
         MaoJianwei Private Cloud deployed in Beijing University of Posts and Telecommunications(BUPT)
     </description>

@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mao</groupId>
+        <groupId>com.maojianwei.MaoCloud</groupId>
         <artifactId>mao-cloud</artifactId>
         <version>0.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -24,7 +24,7 @@
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <url>http://maojianwei.github.io/</url>
+    <url>http://maocloud.maojianwei.com/</url>
     <description>
         MaoJianwei Private Cloud deployed in Beijing University of Posts and Telecommunications(BUPT)
     </description>
@@ -52,7 +52,7 @@
                 </executions>
                 <configuration>
                     <file>${pom.basedir}/features.xml</file>
-                    <outputFile>${pom.basedir}/target/org/mao/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</outputFile>
+                    <outputFile>${pom.basedir}/target/com/maojianwei/MaoCloud/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</outputFile>
                     <replacements>
                         <replacement>
                             <token>@MAOCLOUD-VERSION</token>
@@ -79,7 +79,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/org/mao/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</file>
+                                    <file>target/com/maojianwei/MaoCloud/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-features.xml</file>
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
