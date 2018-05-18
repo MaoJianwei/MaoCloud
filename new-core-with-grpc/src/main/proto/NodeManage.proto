@@ -1,0 +1,28 @@
+
+syntax = "proto3";
+
+option java_multiple_files = false;
+//option java_package = "com.maojianwei.grpc.techtest";
+option java_outer_classname = "NodeManagement";
+option optimize_for = SPEED; // or LITE_RUNTIME
+
+package com.maojianwei.grpc.node;
+
+import "Common.proto";
+
+service NodeManage {
+    rpc BidirectionalEcho(MaoEchoRequest) returns (MaoEchoReply) {}
+    rpc AddNode(NodeNetInfo) returns (None) {}
+}
+
+message MaoEchoRequest {
+
+}
+
+message MaoEchoReply {
+
+}
+
+message NodeNetInfo {
+    repeated string nodeIpPort = 1;
+}
