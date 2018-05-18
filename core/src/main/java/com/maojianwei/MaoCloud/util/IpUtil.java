@@ -36,9 +36,10 @@ public final class IpUtil {
     public static InetAddress strToInet(String ipStr){
         return InetAddresses.forString(ipStr);
     }
+
     public static String inetToStr(InetAddress ipAddr){
         return isIpv4(ipAddr)
-                ? InetAddresses.toAddrString(ipAddr).replace("/", "")
+                ? InetAddresses.toAddrString(ipAddr).split("/")[1]
                 : InetAddresses.toAddrString(ipAddr);
     }
 

@@ -18,7 +18,7 @@ public class MaoProtocolNode {
     public MaoProtocolNode(Channel channel, MaoProtocolAgent agent){
         this.agent = agent;
         this.channel = channel;
-        this.address = channel.remoteAddress().toString().split(":")[0].replace("/","");
+        this.address = channel.remoteAddress().toString().split(":")[0].split("/")[1];
     }
 
     public String getChannelInfo(){
