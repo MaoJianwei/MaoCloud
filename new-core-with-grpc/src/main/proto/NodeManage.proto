@@ -1,28 +1,50 @@
 
 syntax = "proto3";
 
+package com.maojianwei.maocloud.grpc.node;
+
+
 option java_multiple_files = false;
 //option java_package = "com.maojianwei.grpc.techtest";
 option java_outer_classname = "NodeManagement";
 option optimize_for = SPEED; // or LITE_RUNTIME
 
-package com.maojianwei.grpc.node;
 
 import "Common.proto";
 
 service NodeManage {
+    rpc Login(NodeLogin) returns (NodeLoginResult) {}
+
     rpc BidirectionalEcho(MaoEchoRequest) returns (MaoEchoReply) {}
-    rpc AddNode(NodeNetInfo) returns (None) {}
+
+    rpc AddNode(NodeNetInfo) returns (com.maojianwei.maocloud.grpc.common.None) {}
 }
 
 message MaoEchoRequest {
-
+    string reqName = 1;
 }
 
 message MaoEchoReply {
-
+    string reqName = 1;
+    string replyName = 2;
 }
 
 message NodeNetInfo {
     repeated string nodeIpPort = 1;
+}
+
+message NodeLogin {
+    string nodename = 1;
+    string password = 2;
+}
+
+message NodeLoginResult {
+    bool ok = 1;
+
+    enum LoginResult {
+        OK = 0;
+        INVALID_ACCOUNT = 1;
+        PERMISSION_DENY = 2;
+    }
+    LoginResult result = 2;
 }
