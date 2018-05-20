@@ -34,8 +34,7 @@ message NodeNetInfo {
 }
 
 message NodeLogin {
-    string nodename = 1;
-    string password = 2;
+    string credentialKey = 1;
 }
 
 message NodeLoginResult {
