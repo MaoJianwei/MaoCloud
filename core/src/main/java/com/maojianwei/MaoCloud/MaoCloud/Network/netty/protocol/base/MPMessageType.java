@@ -14,7 +14,6 @@ public enum MPMessageType {
     CLUSTER_INTERNAL_DATA(0x30);
 
     private final int wireType;
-
     MPMessageType(int wireType){
         this.wireType = wireType;
     }

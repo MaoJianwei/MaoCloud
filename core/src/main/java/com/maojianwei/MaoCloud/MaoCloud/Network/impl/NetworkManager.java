@@ -8,7 +8,7 @@ import io.netty.util.internal.ConcurrentSet;
 import org.apache.felix.scr.annotations.*;
 import com.maojianwei.MaoCloud.MaoCloud.Network.base.MaoProtocolNode;
 import com.maojianwei.MaoCloud.MaoCloud.Network.netty.protocol.api.base.MPMessage;
-import com.maojianwei.MaoCloud.MaoCloud.api.MaoCloudData;
+import com.maojianwei.MaoCloud.MaoCloud.api.communicate.MaoCloudData;
 
 import java.util.List;
 import java.util.Set;

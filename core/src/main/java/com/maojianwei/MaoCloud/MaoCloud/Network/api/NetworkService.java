@@ -1,6 +1,6 @@
 package com.maojianwei.MaoCloud.MaoCloud.Network.api;
 
-import com.maojianwei.MaoCloud.MaoCloud.api.MaoCloudData;
+import com.maojianwei.MaoCloud.MaoCloud.api.communicate.MaoCloudData;
 
 import java.util.List;
 
